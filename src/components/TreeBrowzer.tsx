@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Octokit } from '@octokit/rest';
 import { GetResponseTypeFromEndpointMethod } from '@octokit/types';
+import { GitHubReposContext } from '@/types/GitHubReposContext';
+import FileContext from './FileContext';
 
 type RepoContentFetcherProps = {
   accessToken: string;
@@ -71,11 +73,11 @@ export default function RepoContentFetcher({ accessToken }: RepoContentFetcherPr
       {error && <div className='text-red-500'>{error}</div>}
 
       {contents && (
-        <ul>
+        <ul className='max-w-full w-[40rem]'>
           {Array.isArray(contents.data) &&
-            contents.data.map((item) => (
+            contents.data.map((item: GitHubReposContext) => (
               <li key={item.path}>
-                {item.type === 'file' ? '📄' : '📁'} {item.path}
+                {item.type === 'file' ? <FileContext item={item} /> : '📁'} {item.path}
               </li>
             ))}
         </ul>
