@@ -5,12 +5,11 @@ import { Octokit } from '@octokit/rest';
 import { GetResponseTypeFromEndpointMethod } from '@octokit/types';
 import { GitHubReposContext } from '@/types/GitHubReposContext';
 import FileContext from './FileContext';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/github/tokenManager';
 
-type RepoContentFetcherProps = {
-  accessToken: string;
-};
-
-export default function RepoContentFetcher({ accessToken }: RepoContentFetcherProps) {
+export default function RepoContentFetcher() {
+  const accessToken = useSelector((state: RootState)  => state.auth.accessToken);
   const octokit = new Octokit({
     auth: accessToken,
   });
@@ -77,7 +76,7 @@ export default function RepoContentFetcher({ accessToken }: RepoContentFetcherPr
           {Array.isArray(contents.data) &&
             contents.data.map((item: GitHubReposContext) => (
               <li key={item.path}>
-                {item.type === 'file' ? <FileContext item={item} /> : '📁'} {item.path}
+                {item.type === 'file' ? <FileContext item={item} /> : `📁 ${item.path}`}
               </li>
             ))}
         </ul>

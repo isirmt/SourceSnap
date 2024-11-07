@@ -12,7 +12,9 @@ declare module 'next-auth' {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
-    GitHubProvider({}),
+    GitHubProvider({
+      authorization: { params: { scope: 'repo read:org' } }
+    }),
   ],
   callbacks: {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

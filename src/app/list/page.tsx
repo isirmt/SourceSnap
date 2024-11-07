@@ -1,9 +1,9 @@
 import { Session } from 'next-auth';
 import { auth } from '@/lib/auth';
 import SessionButton from '@/components/SessionButton';
-import RepoContentFetcher from '@/components/TreeBrowzer';
+import ListPageClient from './page.client';
 
-export default async function Dashboard() {
+export default async function ListPage() {
   const session: Session | null = await auth();
   if (!session) {
     return (
@@ -30,9 +30,7 @@ export default async function Dashboard() {
       <div>ユーザー情報</div>
       <div>ID: {session.user?.id}</div>
       {/* <div>アクセストークン: {session.access_token}</div> */}
-
-      <RepoContentFetcher accessToken={accessToken} />
-
+      <ListPageClient />
       <SessionButton />
     </main>
   );
