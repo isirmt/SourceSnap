@@ -8,6 +8,7 @@ import FileContext from './FileContext';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/github/tokenManager';
 import FolderContext from './FolderContext';
+import PathLayers from './PathLayers';
 
 export default function RepoContentFetcher() {
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
@@ -76,6 +77,8 @@ export default function RepoContentFetcher() {
       </div>
 
       {error && <div className='text-red-500'>{error}</div>}
+
+      <PathLayers path={path} setPathFunc={changePath} />
 
       {contents && (
         <ul className='max-w-full w-[40rem]'>
