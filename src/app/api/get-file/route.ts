@@ -1,18 +1,24 @@
 import { NextResponse } from 'next/server';
 import { Octokit } from '@octokit/rest';
+import { auth } from '@/lib/auth';
+import { Session } from 'next-auth';
 
 export async function GET(request: Request) {
+  const session: Session | null = await auth();
+
+  if (!session) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
   const { searchParams } = new URL(request.url);
   const downloadUrl = searchParams.get('download_url');
-  const token = searchParams.get('token');
 
-  if (!downloadUrl || !token) {
+  if (!downloadUrl) {
     return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
   }
 
   try {
     const octokit = new Octokit({
-      auth: token,
+      auth: session.access_token,
     });
 
     const response = await octokit.request('GET ' + downloadUrl);

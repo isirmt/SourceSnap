@@ -16,7 +16,7 @@ export default function FileContext({ item }: { item: GitHubReposContext }) {
     }
     try {
       if (item.download_url) {
-        const response = await fetch(`/api/get-file?download_url=${encodeURIComponent(item.download_url)}&token=${encodeURIComponent(accessToken)}`);
+        const response = await fetch(`/api/get-file?download_url=${encodeURIComponent(item.download_url)}`);
 
         if (!response.ok) {
           throw new Error('Failed to download file');

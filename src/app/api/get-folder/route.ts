@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { Octokit } from '@octokit/rest';
 import JSZip from 'jszip';
 import { GitHubReposContext } from '@/types/GitHubReposContext';
+import { Session } from 'next-auth';
+import { auth } from '@/lib/auth';
 
 async function getFolderContents(octokit: Octokit, owner: string, repo: string, path: string): Promise<GitHubReposContext[]> {
 
@@ -27,18 +29,23 @@ async function getFolderContents(octokit: Octokit, owner: string, repo: string, 
 }
 
 export async function GET(request: Request) {
+  const session: Session | null = await auth();
+
+  if (!session) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+  
   const { searchParams } = new URL(request.url);
   const owner = searchParams.get('owner');
   const repo = searchParams.get('repo');
-  const token = searchParams.get('token');
   const path = searchParams.get('path');
 
-  if (!owner || !repo || !token || !path) {
+  if (!owner || !repo || !path) {
     return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
   }
 
   try {
-    const octokit = new Octokit({ auth: token });
+    const octokit = new Octokit({ auth: session.access_token });
 
     const files = await getFolderContents(octokit, owner, repo, path);
 
