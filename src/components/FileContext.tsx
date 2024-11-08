@@ -4,6 +4,7 @@ import { GitHubReposContext } from "@/types/GitHubReposContext";
 import saveAs from "file-saver";
 import Link from "next/link";
 import { useSelector } from "react-redux";
+import BrowserListItem from "./BrowserListItem";
 
 export default function FileContext({ item }: { item: GitHubReposContext }) {
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
@@ -33,7 +34,7 @@ export default function FileContext({ item }: { item: GitHubReposContext }) {
     }
   };
 
-  return <div className="flex w-full text-base border justify-between">
+  return <BrowserListItem>
     <Link target="_blank" rel="noopener noreferrer" href={item.html_url!} className="py-1 px-2 size-full hover:bg-blue-100" >
       <span className="i-tabler-file-filled translate-y-1 mr-1" />
       {item.name}
@@ -43,5 +44,5 @@ export default function FileContext({ item }: { item: GitHubReposContext }) {
         <div className="i-tabler-download" />
       </button>
     </div>
-  </div>
+  </BrowserListItem>
 }

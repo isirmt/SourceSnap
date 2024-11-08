@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { Octokit } from '@octokit/rest';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -6,21 +7,21 @@ export async function GET(request: Request) {
   const token = searchParams.get('token');
 
   if (!downloadUrl || !token) {
-    return NextResponse.json({ error: 'Missing download_url or token' }, { status: 400 });
+    return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 });
   }
 
   try {
-    const response = await fetch(downloadUrl, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      }
+    const octokit = new Octokit({
+      auth: token,
     });
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch the file: ${response.statusText}`);
+    const response = await octokit.request('GET ' + downloadUrl);
+
+    if (response.status !== 200) {
+      throw new Error(`Failed to fetch the file: ${response.status}`);
     }
 
-    const fileBlob = await response.blob();
+    const fileBlob = Buffer.from(response.data);
 
     return new NextResponse(fileBlob, {
       headers: {

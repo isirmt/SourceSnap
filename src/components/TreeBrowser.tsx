@@ -7,9 +7,10 @@ import { GitHubReposContext } from '@/types/GitHubReposContext';
 import FileContext from './FileContext';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/github/tokenManager';
+import FolderContext from './FolderContext';
 
 export default function RepoContentFetcher() {
-  const accessToken = useSelector((state: RootState)  => state.auth.accessToken);
+  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
   const octokit = new Octokit({
     auth: accessToken,
   });
@@ -22,12 +23,12 @@ export default function RepoContentFetcher() {
   const [contents, setContents] = useState<GitHubTreeContent>();
   const [error, setError] = useState<string | null>(null);
 
-  const getRepoContents = async () => {
+  const getRepoContents = async (_owner = owner, _repo = repo, _path = path) => {
     try {
       const response = await octokit.repos.getContent({
-        owner,
-        repo,
-        path,
+        owner: _owner,
+        repo: _repo,
+        path: _path,
       });
       console.log(response.data)
       setContents(response);
@@ -38,6 +39,11 @@ export default function RepoContentFetcher() {
       setContents(undefined);
     }
   };
+
+  const changePath = (updatedPath: string) => {
+    setPath(updatedPath)
+    getRepoContents(owner, repo, updatedPath)
+  }
 
   return (
     <div>
@@ -64,7 +70,7 @@ export default function RepoContentFetcher() {
           onChange={(e) => setPath(e.target.value)}
           className='border p-2 mb-2'
         />
-        <button onClick={getRepoContents} className='bg-blue-500 text-white p-2'>
+        <button onClick={() => getRepoContents()} className='bg-blue-500 text-white p-2'>
           取得
         </button>
       </div>
@@ -76,7 +82,9 @@ export default function RepoContentFetcher() {
           {Array.isArray(contents.data) &&
             contents.data.map((item: GitHubReposContext) => (
               <li key={item.path}>
-                {item.type === 'file' ? <FileContext item={item} /> : `📁 ${item.path}`}
+                {item.type === 'file' ?
+                  <FileContext item={item} /> :
+                  <FolderContext setPathFunc={changePath} item={item} />}
               </li>
             ))}
         </ul>
