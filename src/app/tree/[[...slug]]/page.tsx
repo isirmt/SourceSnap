@@ -29,15 +29,16 @@ export default async function ListPage({
     );
   }
 
-  const defaultSlug = (await params).slug;
+  const [owner, repo, ...pathSegments] = (await params).slug ?? [];
+  const path = pathSegments.join('/');
 
   return (
     <main className='p-4'>
-      <ListPageClient defaultTree={defaultSlug ? {
-        owner: defaultSlug[0],
-        repo: defaultSlug[1],
-        path: defaultSlug[2],
-      } : undefined} />
+      <ListPageClient defaultTree={{
+        owner,
+        repo,
+        path,
+      }} />
       <SessionButton />
     </main>
   );

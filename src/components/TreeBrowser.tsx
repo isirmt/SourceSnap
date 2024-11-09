@@ -33,7 +33,7 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
         repo: _repo,
         path: _path,
       });
-      console.log(response.data)
+      // console.log(response.data)
       setContents(response);
       setError(null);
     } catch (err) {
@@ -45,23 +45,27 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
 
   useEffect(() => {
     getRepoContents();
-  
+
     const handlePopState = () => {
       const urlParams = new URL(window.location.href);
       const segments = urlParams.pathname.split('/').slice(2);
-  
-      setOwner(segments[0] || "");
-      setRepo(segments[1] || "");
-      setPath(segments[2] || "");
-      getRepoContents(segments[0], segments[1], segments[2] || "");
+
+      const [updatedOwner, updatedRepo, ...pathSegments] = segments;
+      const updatedPath = pathSegments.join('/');
+
+      setOwner(updatedOwner || "");
+      setRepo(updatedRepo || "");
+      setPath(updatedPath || "");
+      // console.log(updatedPath)
+      getRepoContents(updatedOwner, updatedRepo, updatedPath || "");
     };
-  
+
     window.addEventListener("popstate", handlePopState);
-  
+
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const changePath = (updatedPath = path) => {
@@ -102,18 +106,20 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
 
       {error && <div className='text-red-500'>{error}</div>}
       <div className='max-w-full w-[40rem]'>
-        {contents && (
+        {contents && Array.isArray(contents.data) && (
           <React.Fragment>
             <PathLayers path={path} setPathFunc={changePath} concatComponent />
             <ul className='w-full border-x border-slate-200 rounded-lg rounded-t-none overflow-clip'>
-              {Array.isArray(contents.data) &&
-                contents.data.map((item: GitHubReposContext) => (
-                  <li key={item.path}>
-                    {item.type === 'file' ?
-                      <FileContext item={item} /> :
-                      <FolderContext setPathFunc={changePath} item={item} />}
-                  </li>
-                ))}
+              {contents.data.filter((item: GitHubReposContext) => item.type === "dir").map((item: GitHubReposContext) => (
+                <li key={item.path}>
+                  <FolderContext item={item} setPathFunc={changePath} />
+                </li>
+              ))}
+              {contents.data.filter((item: GitHubReposContext) => item.type === "file").map((item: GitHubReposContext) => (
+                <li key={item.path}>
+                  <FileContext item={item} />
+                </li>
+              ))}
             </ul>
           </React.Fragment>
         )}
