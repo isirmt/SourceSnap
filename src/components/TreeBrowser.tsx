@@ -48,7 +48,7 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
   
     const handlePopState = () => {
       const urlParams = new URL(window.location.href);
-      const segments = urlParams.pathname.split('/').slice(2); // Adjust to get 'owner', 'repo', 'path'
+      const segments = urlParams.pathname.split('/').slice(2);
   
       setOwner(segments[0] || "");
       setRepo(segments[1] || "");

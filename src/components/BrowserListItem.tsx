@@ -8,7 +8,7 @@ export default function BrowserListItem({ item, itemClickFunc, downloadFunc }:
   }) {
   return <div className="flex w-full text-base border-y mb-[-1px] border-slate-200 justify-between group hover:bg-blue-100">
     <button onClick={itemClickFunc} className="text-left py-1.5 px-2 size-full group-hover:bg-blue-100" >
-      <span className={`${item.type === "file" ? "i-tabler-file-filled" : "i-tabler-folder-filled"} translate-y-1 mr-1`} />
+      <span className={`${item.type === "file" ? "i-tabler-file" : "i-tabler-folder-filled"} translate-y-1 mr-1`} />
       {item.name}
     </button>
     <div className="p-0.5 flex gap-0.5">
