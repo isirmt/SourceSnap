@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Octokit } from '@octokit/rest';
 import { GetResponseTypeFromEndpointMethod } from '@octokit/types';
 import { GitHubReposContext } from '@/types/GitHubReposContext';
@@ -8,8 +8,9 @@ import FileContext from './FileContext';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/github/tokenManager';
 import FolderContext from './FolderContext';
+import { DefaultTree } from '@/types/GitHubDefaultTree';
 
-export default function RepoContentFetcher() {
+export default function RepoContentFetcher({ defaultTree }: { defaultTree?: DefaultTree }) {
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
   const octokit = new Octokit({
     auth: accessToken,
@@ -17,13 +18,13 @@ export default function RepoContentFetcher() {
 
   type GitHubTreeContent = GetResponseTypeFromEndpointMethod<typeof octokit.repos.getContent>
 
-  const [owner, setOwner] = useState('');
-  const [repo, setRepo] = useState('');
-  const [path, setPath] = useState('');
+  const [owner, setOwner] = useState(defaultTree?.owner ?? "");
+  const [repo, setRepo] = useState(defaultTree?.repo ?? "");
+  const [path, setPath] = useState(defaultTree?.path ?? "");
   const [contents, setContents] = useState<GitHubTreeContent>();
   const [error, setError] = useState<string | null>(null);
 
-  const getRepoContents = async (_owner = owner, _repo = repo, _path = path) => {
+  const getRepoContents = useCallback(async (_owner = owner, _repo = repo, _path = path) => {
     try {
       const response = await octokit.repos.getContent({
         owner: _owner,
@@ -38,7 +39,12 @@ export default function RepoContentFetcher() {
       setError('リポジトリの内容を取得できませんでした。');
       setContents(undefined);
     }
-  };
+  }, [octokit.repos, owner, path, repo]);
+
+  useEffect(() => {
+    getRepoContents()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const changePath = (updatedPath: string) => {
     setPath(updatedPath)
