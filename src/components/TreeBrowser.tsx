@@ -10,6 +10,7 @@ import { RootState } from '@/lib/github/tokenManager';
 import FolderContext from './FolderContext';
 import { DefaultTree } from '@/types/GitHubDefaultTree';
 import PathLayers from './PathLayers';
+import React from 'react';
 
 export default function RepoContentFetcher({ defaultTree }: { defaultTree?: DefaultTree }) {
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
@@ -83,18 +84,20 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
 
       {error && <div className='text-red-500'>{error}</div>}
       <div className='max-w-full w-[40rem]'>
-        <PathLayers path={path} setPathFunc={changePath} concatComponent />
         {contents && (
-          <ul className='w-full border-x border-slate-200 rounded-lg rounded-t-none overflow-clip'>
-            {Array.isArray(contents.data) &&
-              contents.data.map((item: GitHubReposContext) => (
-                <li key={item.path}>
-                  {item.type === 'file' ?
-                    <FileContext item={item} /> :
-                    <FolderContext setPathFunc={changePath} item={item} />}
-                </li>
-              ))}
-          </ul>
+          <React.Fragment>
+            <PathLayers path={path} setPathFunc={changePath} concatComponent />
+            <ul className='w-full border-x border-slate-200 rounded-lg rounded-t-none overflow-clip'>
+              {Array.isArray(contents.data) &&
+                contents.data.map((item: GitHubReposContext) => (
+                  <li key={item.path}>
+                    {item.type === 'file' ?
+                      <FileContext item={item} /> :
+                      <FolderContext setPathFunc={changePath} item={item} />}
+                  </li>
+                ))}
+            </ul>
+          </React.Fragment>
         )}
       </div>
     </div>
