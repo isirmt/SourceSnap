@@ -9,6 +9,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/github/tokenManager';
 import FolderContext from './FolderContext';
 import { DefaultTree } from '@/types/GitHubDefaultTree';
+import PathLayers from './PathLayers';
 
 export default function RepoContentFetcher({ defaultTree }: { defaultTree?: DefaultTree }) {
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
@@ -82,6 +83,8 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
       </div>
 
       {error && <div className='text-red-500'>{error}</div>}
+
+      <PathLayers path={path} setPathFunc={changePath} />
 
       {contents && (
         <ul className='max-w-full w-[40rem]'>

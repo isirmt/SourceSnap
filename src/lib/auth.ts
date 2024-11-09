@@ -11,6 +11,7 @@ declare module 'next-auth' {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  trustHost: true,
   providers: [
     GitHubProvider({
       authorization: { params: { scope: 'repo read:org' } }

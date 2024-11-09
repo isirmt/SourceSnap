@@ -15,7 +15,7 @@ export default function FolderContext({ item, setPathFunc }: { item: GitHubRepos
       return;
     }
     try {
-      const response = await fetch(`/api/get-folder?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}&path=${item.path}&token=${encodeURIComponent(accessToken)}`);
+      const response = await fetch(`/api/get-folder?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}&path=${item.path}`);
 
       if (!response.ok) {
         throw new Error('Failed to download folder');
