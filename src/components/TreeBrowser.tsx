@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Octokit } from '@octokit/rest';
 import { GetResponseTypeFromEndpointMethod } from '@octokit/types';
 import { GitHubReposContext } from '@/types/GitHubReposContext';
@@ -14,11 +14,9 @@ import React from 'react';
 
 export default function RepoContentFetcher({ defaultTree }: { defaultTree?: DefaultTree }) {
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
-  const octokit = new Octokit({
-    auth: accessToken,
-  });
+  const octokit = useMemo(() => accessToken ? new Octokit({ auth: accessToken }) : null, [accessToken]);
 
-  type GitHubTreeContent = GetResponseTypeFromEndpointMethod<typeof octokit.repos.getContent>
+  type GitHubTreeContent = GetResponseTypeFromEndpointMethod<NonNullable<typeof octokit>['repos']['getContent']>;
 
   const [owner, setOwner] = useState(defaultTree?.owner ?? "");
   const [repo, setRepo] = useState(defaultTree?.repo ?? "");
@@ -27,13 +25,14 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
   const [error, setError] = useState<string | null>(null);
 
   const getRepoContents = useCallback(async (_owner = owner, _repo = repo, _path = path) => {
+    if (!octokit) return;
+
     try {
       const response = await octokit.repos.getContent({
         owner: _owner,
         repo: _repo,
         path: _path,
       });
-      // console.log(response.data)
       setContents(response);
       setError(null);
     } catch (err) {
@@ -41,39 +40,39 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
       setError('リポジトリの内容を取得できませんでした。');
       setContents(undefined);
     }
-  }, [octokit.repos, owner, path, repo]);
+  }, [octokit, owner, path, repo]);
 
   useEffect(() => {
-    getRepoContents();
+    if (accessToken) {
+      getRepoContents();
 
-    const handlePopState = () => {
-      const urlParams = new URL(window.location.href);
-      const segments = urlParams.pathname.split('/').slice(2);
+      const handlePopState = () => {
+        const urlParams = new URL(window.location.href);
+        const segments = urlParams.pathname.split('/').slice(2);
 
-      const [updatedOwner, updatedRepo, ...pathSegments] = segments;
-      const updatedPath = pathSegments.join('/');
+        const [updatedOwner, updatedRepo, ...pathSegments] = segments;
+        const updatedPath = pathSegments.join('/');
 
-      setOwner(updatedOwner || "");
-      setRepo(updatedRepo || "");
-      setPath(updatedPath || "");
-      // console.log(updatedPath)
-      getRepoContents(updatedOwner, updatedRepo, updatedPath || "");
-    };
+        setOwner(updatedOwner || "");
+        setRepo(updatedRepo || "");
+        setPath(updatedPath || "");
+        getRepoContents(updatedOwner, updatedRepo, updatedPath);
+      };
 
-    window.addEventListener("popstate", handlePopState);
+      window.addEventListener("popstate", handlePopState);
 
-    return () => {
-      window.removeEventListener("popstate", handlePopState);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      return () => {
+        window.removeEventListener("popstate", handlePopState);
+      };
+    }
+  }, [accessToken, getRepoContents]);
 
   const changePath = (updatedPath = path) => {
-    setPath(updatedPath)
-    const url = new URL(window.location.origin) + "tree" + `/${owner}/${repo}/${updatedPath}`
+    setPath(updatedPath);
+    const url = new URL(window.location.origin) + "tree" + `/${owner}/${repo}/${updatedPath}`;
     window.history.pushState({}, "", url);
-    getRepoContents(owner, repo, updatedPath)
-  }
+    getRepoContents(owner, repo, updatedPath);
+  };
 
   return (
     <div className='flex flex-col items-center'>
