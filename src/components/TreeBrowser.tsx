@@ -53,8 +53,7 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
   }
 
   return (
-    <div>
-      <h2>リポジトリの内容を取得</h2>
+    <div className='flex flex-col items-center'>
       <div>
         <input
           type='text'
@@ -83,21 +82,21 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
       </div>
 
       {error && <div className='text-red-500'>{error}</div>}
-
-      <PathLayers path={path} setPathFunc={changePath} />
-
-      {contents && (
-        <ul className='max-w-full w-[40rem]'>
-          {Array.isArray(contents.data) &&
-            contents.data.map((item: GitHubReposContext) => (
-              <li key={item.path}>
-                {item.type === 'file' ?
-                  <FileContext item={item} /> :
-                  <FolderContext setPathFunc={changePath} item={item} />}
-              </li>
-            ))}
-        </ul>
-      )}
+      <div className='max-w-full w-[40rem]'>
+        <PathLayers path={path} setPathFunc={changePath} concatComponent />
+        {contents && (
+          <ul className='w-full border-x border-slate-200 rounded-lg rounded-t-none overflow-clip'>
+            {Array.isArray(contents.data) &&
+              contents.data.map((item: GitHubReposContext) => (
+                <li key={item.path}>
+                  {item.type === 'file' ?
+                    <FileContext item={item} /> :
+                    <FolderContext setPathFunc={changePath} item={item} />}
+                </li>
+              ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }

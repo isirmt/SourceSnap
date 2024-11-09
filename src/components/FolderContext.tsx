@@ -29,23 +29,11 @@ export default function FolderContext({ item, setPathFunc }: { item: GitHubRepos
     }
   };
 
-  const handleSetPage = () => {
-    setPathFunc(item.path)
-  }
-
-  return <BrowserListItem>
-    <button
-      onClick={handleSetPage}
-      className="py-1 px-2 size-full hover:bg-blue-100 text-start" >
-      <span className="i-tabler-folder-filled translate-y-1 mr-1" />
-      {item.name}
-    </button>
-    <div>
-      <button onClick={handleDownload} title="Download This File" className="text-white bg-blue-500 h-full px-2">
-        <div className="i-tabler-download" />
-      </button>
-    </div>
-  </BrowserListItem>
+  return <BrowserListItem
+    item={item}
+    itemClickFunc={() => setPathFunc(item.path)}
+    downloadFunc={handleDownload}
+  />
 }
 
 function parseGitHubUrl(url: string) {

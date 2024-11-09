@@ -33,10 +33,6 @@ export default async function ListPage({
 
   return (
     <main className='p-4'>
-      <div>ユーザー情報</div>
-      <div>ID: {session.user?.id}</div>
-      {(await params).slug?.join(".")}
-      {/* <div>アクセストークン: {session.access_token}</div> */}
       <ListPageClient defaultTree={defaultSlug ? {
         owner: defaultSlug[0],
         repo: defaultSlug[1],

@@ -2,7 +2,6 @@
 import { RootState } from "@/lib/github/tokenManager";
 import { GitHubReposContext } from "@/types/GitHubReposContext";
 import saveAs from "file-saver";
-import Link from "next/link";
 import { useSelector } from "react-redux";
 import BrowserListItem from "./BrowserListItem";
 
@@ -34,15 +33,9 @@ export default function FileContext({ item }: { item: GitHubReposContext }) {
     }
   };
 
-  return <BrowserListItem>
-    <Link target="_blank" rel="noopener noreferrer" href={item.html_url!} className="py-1 px-2 size-full hover:bg-blue-100" >
-      <span className="i-tabler-file-filled translate-y-1 mr-1" />
-      {item.name}
-    </Link>
-    <div>
-      <button onClick={handleDownload} title="Download This File" className="text-white bg-blue-500 h-full px-2">
-        <div className="i-tabler-download" />
-      </button>
-    </div>
-  </BrowserListItem>
+  return <BrowserListItem
+    item={item}
+    itemClickFunc={() => window.open(item.html_url!, '_blank', 'noopener,noreferrer')}
+    downloadFunc={handleDownload}
+  />
 }
