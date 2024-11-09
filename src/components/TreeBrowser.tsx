@@ -44,12 +44,30 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
   }, [octokit.repos, owner, path, repo]);
 
   useEffect(() => {
-    getRepoContents()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    getRepoContents();
+  
+    const handlePopState = () => {
+      const urlParams = new URL(window.location.href);
+      const segments = urlParams.pathname.split('/').slice(2); // Adjust to get 'owner', 'repo', 'path'
+  
+      setOwner(segments[0] || "");
+      setRepo(segments[1] || "");
+      setPath(segments[2] || "");
+      getRepoContents(segments[0], segments[1], segments[2] || "");
+    };
+  
+    window.addEventListener("popstate", handlePopState);
+  
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const changePath = (updatedPath: string) => {
+  const changePath = (updatedPath = path) => {
     setPath(updatedPath)
+    const url = new URL(window.location.origin) + "tree" + `/${owner}/${repo}/${updatedPath}`
+    window.history.pushState({}, "", url);
     getRepoContents(owner, repo, updatedPath)
   }
 
@@ -77,7 +95,7 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
           onChange={(e) => setPath(e.target.value)}
           className='border p-2 mb-2'
         />
-        <button onClick={() => getRepoContents()} className='bg-blue-500 text-white p-2'>
+        <button onClick={() => changePath()} className='bg-blue-500 text-white p-2'>
           取得
         </button>
       </div>
