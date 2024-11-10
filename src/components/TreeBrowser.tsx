@@ -3,15 +3,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Octokit } from '@octokit/rest';
 import { GetResponseTypeFromEndpointMethod } from '@octokit/types';
-import { GitHubReposContext } from '@/types/GitHubReposContext';
-import FileContext from './FileContext';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/github/tokenManager';
-import FolderContext from './FolderContext';
 import { DefaultTree } from '@/types/GitHubDefaultTree';
-import PathLayers from './PathLayers';
 import React from 'react';
 import { parseGitHubUrl } from '@/lib/github/urlParser';
+import UserRepoList from './UserRepoList';
+import RepoDirList from './RepoDirList';
 
 export default function RepoContentFetcher({ defaultTree }: { defaultTree?: DefaultTree }) {
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
@@ -27,9 +25,14 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
   const [contents, setContents] = useState<GitHubTreeContent>();
   const [error, setError] = useState<string | null>(null);
 
-  const getRepoContents = useCallback(async (_owner = owner, _repo = repo, _path = path, _ref = ref) => {
-    if (!octokit) return;
+  const updateURL = useCallback((_owner = owner, _repo = repo, _path = path, _ref = ref) => {
+    if (!_owner || !_repo) return;
+    const url = new URL(window.location.origin) + "tree" + `/${_owner}/${_repo}/${_path}${_ref ? `?ref=${_ref}` : ""}`;
+    window.history.pushState({}, "", url);
+  }, [owner, path, ref, repo])
 
+  const getRepoContents = useCallback(async (_owner = owner, _repo = repo, _path = path, _ref = ref) => {
+    if (!octokit || !_owner || !_repo) return;
     try {
       const response = await octokit.repos.getContent({
         owner: _owner,
@@ -44,10 +47,11 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
       setError('リポジトリの内容を取得できませんでした。');
       setContents(undefined);
     }
-  }, [octokit, owner, path, repo, ref]);
+  }, [owner, repo, path, ref, octokit]);
 
   useEffect(() => {
     if (accessToken) {
+      updateURL()
       getRepoContents();
 
       const handlePopState = () => {
@@ -71,18 +75,12 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
         window.removeEventListener("popstate", handlePopState);
       };
     }
-  }, [accessToken, getRepoContents]);
+  }, [accessToken, getRepoContents, updateURL]);
 
   const changePath = (updatedPath = path) => {
     setPath(updatedPath);
-    updateURL(owner, repo, updatedPath, ref)
+    getRepoContents(owner, repo, updatedPath, ref)
   };
-
-  const updateURL = (_owner = owner, _repo = repo, _path = path, _ref = ref) => {
-    const url = new URL(window.location.origin) + "tree" + `/${_owner}/${_repo}/${_path}${_ref ? `?ref=${_ref}` : ""}`;
-    window.history.pushState({}, "", url);
-    getRepoContents(_owner, _repo, _path, _ref);
-  }
 
   return (
     <div className='flex flex-col items-center'>
@@ -98,7 +96,7 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
             setRepo(updatedDir.repo)
             setPath(updatedDir.path)
             setRef(updatedDir.ref)
-            updateURL(updatedDir.owner, updatedDir.repo, updatedDir.path, updatedDir.ref)
+            getRepoContents(updatedDir.owner, updatedDir.repo, updatedDir.path, updatedDir.ref)
           }}
           className='border p-2 mb-2 block'
         />
@@ -135,26 +133,16 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
         </button>
       </div>
 
-      {error && <div className='text-red-500'>{error}</div>}
-      <div className='max-w-full w-[40rem]'>
-        {contents && Array.isArray(contents.data) && (
-          <React.Fragment>
-            <PathLayers path={path} setPathFunc={changePath} concatComponent />
-            <ul className='w-full border-x border-slate-200 rounded-lg rounded-t-none overflow-clip'>
-              {contents.data.filter((item: GitHubReposContext) => item.type === "dir").map((item: GitHubReposContext) => (
-                <li key={item.path}>
-                  <FolderContext item={item} setPathFunc={changePath} />
-                </li>
-              ))}
-              {contents.data.filter((item: GitHubReposContext) => item.type === "file").map((item: GitHubReposContext) => (
-                <li key={item.path}>
-                  <FileContext item={item} />
-                </li>
-              ))}
-            </ul>
-          </React.Fragment>
-        )}
-      </div>
+      {!owner && !repo ?
+        <UserRepoList octokit={octokit} onSelectRepo={(_owner: string, _repo: string) => {
+          setOwner(_owner)
+          setRepo(_repo)
+          getRepoContents(_owner, _repo, path, ref)
+        }} /> :
+        <React.Fragment>
+          {error && <div className='text-red-500'>{error}</div>}
+          {Array.isArray(contents?.data) ? <RepoDirList contents={contents.data} path={path} changePath={changePath} /> : <></>}
+        </React.Fragment>}
     </div>
   );
 }
