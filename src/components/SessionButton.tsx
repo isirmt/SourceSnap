@@ -11,8 +11,8 @@ export default async function SessionButton() {
             await signIn('GitHub');
           }}
         >
-          <button className='my-5 rounded border border-blue-400 bg-slate-50 px-5 py-2 font-bold text-blue-400 transition-colors hover:bg-blue-100'>
-            GitHubでサインイン
+          <button className='my-5 rounded border border-blue-400 bg-transparent px-5 py-2 font-bold text-blue-400 transition-colors hover:bg-blue-100'>
+            <span className='i-tabler-brand-github translate-y-1 mr-1' />SignIn with GitHub
           </button>
         </form>
       )}
@@ -23,8 +23,8 @@ export default async function SessionButton() {
             await signOut();
           }}
         >
-          <button className='my-5 rounded border border-red-400 bg-slate-50 px-5 py-2 font-bold text-red-400 transition-colors hover:bg-red-100'>
-            サインアウト
+          <button className='my-5 rounded border border-red-400 bg-transparent px-5 py-2 font-bold text-red-400 transition-colors hover:bg-red-100'>
+            SignOut
           </button>
         </form>
       )}
