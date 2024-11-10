@@ -115,10 +115,10 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
           />
         </div>
         <div className='flex w-full items-stretch rounded overflow-hidden'>
-          <DistributedInput value={owner} setValue={setOwner} placeholder="Owner" num={5} />
-          <DistributedInput value={repo} setValue={setRepo} placeholder="Repo" num={5} />
-          <DistributedInput value={path} setValue={setPath} placeholder="Path (Optional)" num={5} />
-          <DistributedInput value={ref} setValue={setRef} placeholder="Ref (Optional)" num={5} />
+          <DistributedInput value={owner} setValue={setOwner} onChange={(val) => handleUrlUpdate(val, repo, path, ref)} placeholder="Owner" num={5} />
+          <DistributedInput value={repo} setValue={setRepo} onChange={(val) => handleUrlUpdate(owner, val, path, ref)} placeholder="Repo" num={5} />
+          <DistributedInput value={path} setValue={setPath} onChange={(val) => handleUrlUpdate(owner, repo, val, ref)} placeholder="Path (Optional)" num={5} />
+          <DistributedInput value={ref} setValue={setRef} onChange={(val) => handleUrlUpdate(owner, repo, path, val)} placeholder="Ref (Optional)" num={5} />
           <button onClick={() => changePath()} className='transition-colors block bg-blue-500 hover:bg-blue-600 text-white w-1/5 py-2'>
             GET
           </button>
