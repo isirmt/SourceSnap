@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { Session } from "next-auth";
 import SessionButton from "./SessionButton";
 import React from "react";
+import { ArrowDownBlock } from "./ArrowBlock";
 
 export async function Header() {
   const session: Session | null = await auth();
@@ -26,7 +27,7 @@ export async function Header() {
               Not signed in
             </React.Fragment>)
           }
-          <div className="ml-1 size-2 rotate-45 border-r border-b border-slate-400 -translate-y-0.5" />
+          <ArrowDownBlock />
         </div>
         <div className="hidden cursor-auto group-hover:block absolute top-10 bg-slate-50 border right-0 px-3 rounded shadow">
           <SessionButton />

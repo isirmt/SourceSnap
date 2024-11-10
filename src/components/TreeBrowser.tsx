@@ -132,7 +132,7 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
       ) : (
         <>
           {error && <div className='text-red-500'>{error}</div>}
-          {Array.isArray(contents?.data) ? <RepoDirList contents={contents.data} path={path} changePath={changePath} /> : null}
+          {Array.isArray(contents?.data) ? <RepoDirList contents={contents.data} owner={owner} repo={repo} path={path} changePath={changePath} /> : null}
         </>
       )}
     </div>
