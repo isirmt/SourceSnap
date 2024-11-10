@@ -22,7 +22,7 @@ export async function Header() {
             </React.Fragment>
           ) : (
             <React.Fragment>
-              <div className="size-8 rounded-full bg-slate-200" />
+              <div className="size-8 rounded-full bg-slate-300" />
               Not signed in
             </React.Fragment>)
           }

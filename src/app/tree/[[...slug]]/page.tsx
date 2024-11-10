@@ -25,7 +25,7 @@ export default async function ListPage({
   if (!accessToken) {
     return (
       <main className='p-4'>
-        <div>アクセストークンが取得できませんでした。</div>
+        <div>Failed to get access token</div>
         <SessionButton />
       </main>
     );
@@ -44,7 +44,6 @@ export default async function ListPage({
         path,
         ref: ref !== "" ? ref : undefined
       }} />
-      <SessionButton />
     </main>
   );
 }
