@@ -11,6 +11,7 @@ import { parseGitHubUrl } from '@/lib/github/urlParser';
 import UserRepoList from './UserRepoList';
 import RepoDirList from './RepoDirList';
 import DistributedInput from './DistributedInput';
+import { updateURL } from '@/lib/tree/urlManager';
 
 export default function RepoContentFetcher({ defaultTree }: { defaultTree?: DefaultTree }) {
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
@@ -29,12 +30,6 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
   const [debouncedOwner, setDebouncedOwner] = useState(owner);
   const [debouncedRepo, setDebouncedRepo] = useState(repo);
   const [debouncedPath, setDebouncedPath] = useState(path);
-
-  const updateURL = useCallback((_owner = debouncedOwner, _repo = debouncedRepo, _path = debouncedPath, _ref = ref) => {
-    if (!_owner || !_repo) return;
-    const url = new URL(window.location.origin) + "tree" + `/${_owner}/${_repo}/${_path}${_ref ? `?ref=${_ref}` : ""}`;
-    window.history.pushState({}, "", url);
-  }, [debouncedOwner, debouncedRepo, debouncedPath, ref]);
 
   const getRepoContents = useCallback(async (_owner = debouncedOwner, _repo = debouncedRepo, _path = debouncedPath, _ref = ref) => {
     if (!octokit || !_owner || !_repo) {
@@ -57,20 +52,23 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
     }
   }, [debouncedOwner, debouncedRepo, debouncedPath, ref, octokit]);
 
+  const updateDebounced = useCallback((_owner = owner, _repo = repo, _path = path) => {
+    setDebouncedOwner(_owner);
+    setDebouncedRepo(_repo);
+    setDebouncedPath(_path);
+  }, [owner, path, repo]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedOwner(owner);
-      setDebouncedRepo(repo);
-      setDebouncedPath(path);
-      updateURL();
+      updateDebounced(owner, repo, path)
+      updateURL(owner, repo, path, ref);
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [owner, repo, path, updateURL]);
+  }, [owner, repo, path, ref, updateDebounced]);
 
   useEffect(() => {
     if (accessToken) {
-      updateURL();
       getRepoContents();
 
       const handlePopState = () => {
@@ -81,13 +79,11 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
         const [updatedOwner, updatedRepo, ...pathSegments] = segments;
         const updatedPath = pathSegments.join('/');
 
-        setOwner(updatedOwner || "");
-        setRepo(updatedRepo || "");
-        setPath(updatedPath || "");
+        setOwner(updatedOwner);
+        setRepo(updatedRepo);
+        setPath(updatedPath);
         setRef(updatedRef);
-        setDebouncedOwner(updatedOwner || "");
-        setDebouncedRepo(updatedRepo || "");
-        setDebouncedPath(updatedPath || "");
+        updateDebounced(updatedOwner, updatedRepo, updatedPath)
         getRepoContents(updatedOwner, updatedRepo, updatedPath);
       };
 
@@ -97,7 +93,7 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
         window.removeEventListener("popstate", handlePopState);
       };
     }
-  }, [accessToken, getRepoContents, updateURL]);
+  }, [accessToken, getRepoContents, owner, path, ref, repo, updateDebounced]);
 
   const changePath = (updatedPath = path) => {
     setPath(updatedPath);
