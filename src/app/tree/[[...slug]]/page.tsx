@@ -5,8 +5,10 @@ import ListPageClient from './page.client';
 
 export default async function ListPage({
   params,
+  searchParams
 }: {
-  params: Promise<{ slug?: string[] }>
+  params: Promise<{ slug?: string[] }>,
+  searchParams: Promise<{ [key: string]: string }>
 }) {
   const session: Session | null = await auth();
   if (!session) {
@@ -32,12 +34,15 @@ export default async function ListPage({
   const [owner, repo, ...pathSegments] = (await params).slug ?? [];
   const path = pathSegments.join('/');
 
+  const ref = (await searchParams)["ref"];
+
   return (
     <main className='p-4'>
       <ListPageClient defaultTree={{
         owner,
         repo,
         path,
+        ref: ref !== "" ? ref : undefined
       }} />
       <SessionButton />
     </main>

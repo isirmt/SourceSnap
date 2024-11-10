@@ -11,6 +11,7 @@ import FolderContext from './FolderContext';
 import { DefaultTree } from '@/types/GitHubDefaultTree';
 import PathLayers from './PathLayers';
 import React from 'react';
+import { parseGitHubUrl } from '@/lib/github/urlParser';
 
 export default function RepoContentFetcher({ defaultTree }: { defaultTree?: DefaultTree }) {
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
@@ -18,13 +19,15 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
 
   type GitHubTreeContent = GetResponseTypeFromEndpointMethod<NonNullable<typeof octokit>['repos']['getContent']>;
 
+  const [url, setURL] = useState("");
   const [owner, setOwner] = useState(defaultTree?.owner ?? "");
   const [repo, setRepo] = useState(defaultTree?.repo ?? "");
   const [path, setPath] = useState(defaultTree?.path ?? "");
+  const [ref, setRef] = useState(defaultTree?.ref);
   const [contents, setContents] = useState<GitHubTreeContent>();
   const [error, setError] = useState<string | null>(null);
 
-  const getRepoContents = useCallback(async (_owner = owner, _repo = repo, _path = path) => {
+  const getRepoContents = useCallback(async (_owner = owner, _repo = repo, _path = path, _ref = ref) => {
     if (!octokit) return;
 
     try {
@@ -32,6 +35,7 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
         owner: _owner,
         repo: _repo,
         path: _path,
+        ref: _ref?.trim() !== "" ? _ref : undefined,
       });
       setContents(response);
       setError(null);
@@ -40,7 +44,7 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
       setError('リポジトリの内容を取得できませんでした。');
       setContents(undefined);
     }
-  }, [octokit, owner, path, repo]);
+  }, [octokit, owner, path, repo, ref]);
 
   useEffect(() => {
     if (accessToken) {
@@ -49,6 +53,7 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
       const handlePopState = () => {
         const urlParams = new URL(window.location.href);
         const segments = urlParams.pathname.split('/').slice(2);
+        const updatedRef = urlParams.searchParams.get("ref") ?? undefined;
 
         const [updatedOwner, updatedRepo, ...pathSegments] = segments;
         const updatedPath = pathSegments.join('/');
@@ -56,6 +61,7 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
         setOwner(updatedOwner || "");
         setRepo(updatedRepo || "");
         setPath(updatedPath || "");
+        setRef(updatedRef);
         getRepoContents(updatedOwner, updatedRepo, updatedPath);
       };
 
@@ -69,14 +75,33 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
 
   const changePath = (updatedPath = path) => {
     setPath(updatedPath);
-    const url = new URL(window.location.origin) + "tree" + `/${owner}/${repo}/${updatedPath}`;
-    window.history.pushState({}, "", url);
-    getRepoContents(owner, repo, updatedPath);
+    updateURL(owner, repo, updatedPath, ref)
   };
+
+  const updateURL = (_owner = owner, _repo = repo, _path = path, _ref = ref) => {
+    const url = new URL(window.location.origin) + "tree" + `/${_owner}/${_repo}/${_path}${_ref ? `?ref=${_ref}` : ""}`;
+    window.history.pushState({}, "", url);
+    getRepoContents(_owner, _repo, _path, _ref);
+  }
 
   return (
     <div className='flex flex-col items-center'>
       <div>
+        <input
+          type='text'
+          placeholder='URL'
+          value={url}
+          onChange={(e) => setURL(e.target.value)}
+          onPaste={(e) => {
+            const updatedDir = parseGitHubUrl(e.clipboardData.getData("text"))
+            setOwner(updatedDir.owner);
+            setRepo(updatedDir.repo)
+            setPath(updatedDir.path)
+            setRef(updatedDir.ref)
+            updateURL(updatedDir.owner, updatedDir.repo, updatedDir.path, updatedDir.ref)
+          }}
+          className='border p-2 mb-2 block'
+        />
         <input
           type='text'
           placeholder='オーナー'
@@ -96,6 +121,13 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
           placeholder='パス (任意)'
           value={path}
           onChange={(e) => setPath(e.target.value)}
+          className='border p-2 mb-2'
+        />
+        <input
+          type='text'
+          placeholder='Ref (任意)'
+          value={ref}
+          onChange={(e) => setRef(e.target.value)}
           className='border p-2 mb-2'
         />
         <button onClick={() => changePath()} className='bg-blue-500 text-white p-2'>
