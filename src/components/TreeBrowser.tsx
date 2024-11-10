@@ -11,7 +11,7 @@ import { parseGitHubUrl } from '@/lib/github/urlParser';
 import UserRepoList from './UserRepoList';
 import RepoDirList from './RepoDirList';
 import DistributedInput from './DistributedInput';
-import { updateURL } from '@/lib/tree/urlManager';
+import { updateUrl } from '@/lib/tree/urlManager';
 
 export default function RepoContentFetcher({ defaultTree }: { defaultTree?: DefaultTree }) {
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
@@ -27,13 +27,9 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
   const [contents, setContents] = useState<GitHubTreeContent>();
   const [error, setError] = useState<string | null>(null);
 
-  const [debouncedOwner, setDebouncedOwner] = useState(owner);
-  const [debouncedRepo, setDebouncedRepo] = useState(repo);
-  const [debouncedPath, setDebouncedPath] = useState(path);
-
-  const getRepoContents = useCallback(async (_owner = debouncedOwner, _repo = debouncedRepo, _path = debouncedPath, _ref = ref) => {
+  const getRepoContents = useCallback(async (_owner = owner, _repo = repo, _path = path, _ref = ref) => {
     if (!octokit || !_owner || !_repo) {
-      setContents(undefined)
+      setContents(undefined);
       return;
     }
     try {
@@ -50,22 +46,7 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
       setError('Failed to get contents in repo');
       setContents(undefined);
     }
-  }, [debouncedOwner, debouncedRepo, debouncedPath, ref, octokit]);
-
-  const updateDebounced = useCallback((_owner = owner, _repo = repo, _path = path) => {
-    setDebouncedOwner(_owner);
-    setDebouncedRepo(_repo);
-    setDebouncedPath(_path);
-  }, [owner, path, repo]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      updateDebounced(owner, repo, path)
-      updateURL(owner, repo, path, ref);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [owner, repo, path, ref, updateDebounced]);
+  }, [owner, repo, path, ref, octokit]);
 
   useEffect(() => {
     if (accessToken) {
@@ -75,7 +56,6 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
         const urlParams = new URL(window.location.href);
         const segments = urlParams.pathname.split('/').slice(2);
         const updatedRef = urlParams.searchParams.get("ref") ?? undefined;
-
         const [updatedOwner, updatedRepo, ...pathSegments] = segments;
         const updatedPath = pathSegments.join('/');
 
@@ -83,31 +63,38 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
         setRepo(updatedRepo);
         setPath(updatedPath);
         setRef(updatedRef);
-        updateDebounced(updatedOwner, updatedRepo, updatedPath)
-        getRepoContents(updatedOwner, updatedRepo, updatedPath);
+
+        // Fetch contents only if URL state differs from the current state
+        if (updatedOwner !== owner || updatedRepo !== repo || updatedPath !== path || updatedRef !== ref) {
+          getRepoContents(updatedOwner, updatedRepo, updatedPath, updatedRef);
+        }
       };
 
       window.addEventListener("popstate", handlePopState);
-
       return () => {
         window.removeEventListener("popstate", handlePopState);
       };
     }
-  }, [accessToken, getRepoContents, owner, path, ref, repo, updateDebounced]);
+  }, [accessToken, owner, repo, path, ref, getRepoContents]);
+
+  const handleUrlUpdate = useCallback((updatedOwner = owner, updatedRepo = repo, updatedPath = path, updatedRef = ref) => {
+    setOwner(updatedOwner);
+    setRepo(updatedRepo);
+    setPath(updatedPath);
+    setRef(updatedRef);
+    updateUrl(updatedOwner, updatedRepo, updatedPath, updatedRef);
+    getRepoContents(updatedOwner, updatedRepo, updatedPath, updatedRef);
+  }, [getRepoContents, owner, path, ref, repo]);
 
   const changePath = (updatedPath = path) => {
-    setPath(updatedPath);
-    getRepoContents(owner, repo, updatedPath, ref);
+    handleUrlUpdate(owner, repo, updatedPath);
   };
 
   return (
     <div className='flex flex-col items-center gap-2'>
       <div className='max-w-full w-[40rem]'>
         <div className='flex border rounded mb-2 hover:border-gray-400 overflow-hidden'>
-          <label
-            title='Triggered on paste from clipboard'
-            className='flex items-center justify-center select-none px-2'
-            htmlFor='tree:url'>
+          <label className='flex items-center justify-center select-none px-2' htmlFor='tree:url'>
             <span className='i-tabler-link' />
           </label>
           <input
@@ -115,39 +102,23 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
             type='text'
             placeholder='Paste GitHub repo/dir URL'
             value={url}
-            onChange={(e) => setURL(e.target.value)}
+            onChange={(e) => {
+              const updatedDir = parseGitHubUrl(e.target.value);
+              handleUrlUpdate(updatedDir.owner, updatedDir.repo, updatedDir.path, updatedDir.ref);
+              setURL(e.target.value)
+            }}
             onPaste={(e) => {
               const updatedDir = parseGitHubUrl(e.clipboardData.getData("text"));
-              setOwner(updatedDir.owner);
-              setRepo(updatedDir.repo);
-              setPath(updatedDir.path);
-              setRef(updatedDir.ref);
-              getRepoContents(updatedDir.owner, updatedDir.repo, updatedDir.path, updatedDir.ref);
+              handleUrlUpdate(updatedDir.owner, updatedDir.repo, updatedDir.path, updatedDir.ref);
             }}
             className='transition-colors p-2 flex-grow outline-none'
           />
         </div>
         <div className='flex w-full items-stretch rounded overflow-hidden'>
-          <DistributedInput
-            value={owner}
-            setValue={setOwner}
-            placeholder="Owner"
-            num={5} />
-          <DistributedInput
-            value={repo}
-            setValue={setRepo}
-            placeholder="Repo"
-            num={5} />
-          <DistributedInput
-            value={path}
-            setValue={setPath}
-            placeholder="Path (Optional)"
-            num={5} />
-          <DistributedInput
-            value={ref}
-            setValue={setRef}
-            placeholder="Ref (Optional)"
-            num={5} />
+          <DistributedInput value={owner} setValue={setOwner} placeholder="Owner" num={5} />
+          <DistributedInput value={repo} setValue={setRepo} placeholder="Repo" num={5} />
+          <DistributedInput value={path} setValue={setPath} placeholder="Path (Optional)" num={5} />
+          <DistributedInput value={ref} setValue={setRef} placeholder="Ref (Optional)" num={5} />
           <button onClick={() => changePath()} className='transition-colors block bg-blue-500 hover:bg-blue-600 text-white w-1/5 py-2'>
             GET
           </button>
@@ -156,15 +127,13 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
 
       {!owner || !repo ? (
         <UserRepoList octokit={octokit} onSelectRepo={(_owner: string, _repo: string) => {
-          setOwner(_owner);
-          setRepo(_repo);
-          getRepoContents(_owner, _repo, path, ref);
+          handleUrlUpdate(_owner, _repo);
         }} />
       ) : (
-        <React.Fragment>
+        <>
           {error && <div className='text-red-500'>{error}</div>}
-          {Array.isArray(contents?.data) ? <RepoDirList contents={contents.data} path={path} changePath={changePath} /> : <></>}
-        </React.Fragment>
+          {Array.isArray(contents?.data) ? <RepoDirList contents={contents.data} path={path} changePath={changePath} /> : null}
+        </>
       )}
     </div>
   );
