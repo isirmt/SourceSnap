@@ -37,7 +37,10 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
   }, [debouncedOwner, debouncedRepo, debouncedPath, ref]);
 
   const getRepoContents = useCallback(async (_owner = debouncedOwner, _repo = debouncedRepo, _path = debouncedPath, _ref = ref) => {
-    if (!octokit || !_owner || !_repo) return;
+    if (!octokit || !_owner || !_repo) {
+      setContents(undefined)
+      return;
+    }
     try {
       const response = await octokit.repos.getContent({
         owner: _owner,
@@ -82,6 +85,9 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
         setRepo(updatedRepo || "");
         setPath(updatedPath || "");
         setRef(updatedRef);
+        setDebouncedOwner(updatedOwner || "");
+        setDebouncedRepo(updatedRepo || "");
+        setDebouncedPath(updatedPath || "");
         getRepoContents(updatedOwner, updatedRepo, updatedPath);
       };
 
