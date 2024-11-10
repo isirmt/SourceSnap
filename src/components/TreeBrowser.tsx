@@ -25,13 +25,17 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
   const [contents, setContents] = useState<GitHubTreeContent>();
   const [error, setError] = useState<string | null>(null);
 
-  const updateURL = useCallback((_owner = owner, _repo = repo, _path = path, _ref = ref) => {
+  const [debouncedOwner, setDebouncedOwner] = useState(owner);
+  const [debouncedRepo, setDebouncedRepo] = useState(repo);
+  const [debouncedPath, setDebouncedPath] = useState(path);
+
+  const updateURL = useCallback((_owner = debouncedOwner, _repo = debouncedRepo, _path = debouncedPath, _ref = ref) => {
     if (!_owner || !_repo) return;
     const url = new URL(window.location.origin) + "tree" + `/${_owner}/${_repo}/${_path}${_ref ? `?ref=${_ref}` : ""}`;
     window.history.pushState({}, "", url);
-  }, [owner, path, ref, repo])
+  }, [debouncedOwner, debouncedRepo, debouncedPath, ref]);
 
-  const getRepoContents = useCallback(async (_owner = owner, _repo = repo, _path = path, _ref = ref) => {
+  const getRepoContents = useCallback(async (_owner = debouncedOwner, _repo = debouncedRepo, _path = debouncedPath, _ref = ref) => {
     if (!octokit || !_owner || !_repo) return;
     try {
       const response = await octokit.repos.getContent({
@@ -43,15 +47,26 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
       setContents(response);
       setError(null);
     } catch (err) {
-      console.error('エラーが発生しました:', err);
-      setError('リポジトリの内容を取得できませんでした。');
+      console.error('Error Occurred:', err);
+      setError('Failed to get contents in repo');
       setContents(undefined);
     }
-  }, [owner, repo, path, ref, octokit]);
+  }, [debouncedOwner, debouncedRepo, debouncedPath, ref, octokit]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedOwner(owner);
+      setDebouncedRepo(repo);
+      setDebouncedPath(path);
+      updateURL();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [owner, repo, path, updateURL]);
 
   useEffect(() => {
     if (accessToken) {
-      updateURL()
+      updateURL();
       getRepoContents();
 
       const handlePopState = () => {
@@ -79,7 +94,7 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
 
   const changePath = (updatedPath = path) => {
     setPath(updatedPath);
-    getRepoContents(owner, repo, updatedPath, ref)
+    getRepoContents(owner, repo, updatedPath, ref);
   };
 
   return (
@@ -91,58 +106,60 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
           value={url}
           onChange={(e) => setURL(e.target.value)}
           onPaste={(e) => {
-            const updatedDir = parseGitHubUrl(e.clipboardData.getData("text"))
+            const updatedDir = parseGitHubUrl(e.clipboardData.getData("text"));
             setOwner(updatedDir.owner);
-            setRepo(updatedDir.repo)
-            setPath(updatedDir.path)
-            setRef(updatedDir.ref)
-            getRepoContents(updatedDir.owner, updatedDir.repo, updatedDir.path, updatedDir.ref)
+            setRepo(updatedDir.repo);
+            setPath(updatedDir.path);
+            setRef(updatedDir.ref);
+            getRepoContents(updatedDir.owner, updatedDir.repo, updatedDir.path, updatedDir.ref);
           }}
           className='border p-2 mb-2 block'
         />
         <input
           type='text'
-          placeholder='オーナー'
+          placeholder='Owner'
           value={owner}
           onChange={(e) => setOwner(e.target.value)}
           className='border p-2 mb-2'
         />
         <input
           type='text'
-          placeholder='リポジトリ名'
+          placeholder='Repo'
           value={repo}
           onChange={(e) => setRepo(e.target.value)}
           className='border p-2 mb-2'
         />
         <input
           type='text'
-          placeholder='パス (任意)'
+          placeholder='Path (Optional)'
           value={path}
           onChange={(e) => setPath(e.target.value)}
           className='border p-2 mb-2'
         />
         <input
           type='text'
-          placeholder='Ref (任意)'
+          placeholder='Ref (Optional)'
           value={ref}
           onChange={(e) => setRef(e.target.value)}
           className='border p-2 mb-2'
         />
         <button onClick={() => changePath()} className='bg-blue-500 text-white p-2'>
-          取得
+          Get
         </button>
       </div>
 
-      {!owner && !repo ?
+      {!owner || !repo ? (
         <UserRepoList octokit={octokit} onSelectRepo={(_owner: string, _repo: string) => {
-          setOwner(_owner)
-          setRepo(_repo)
-          getRepoContents(_owner, _repo, path, ref)
-        }} /> :
+          setOwner(_owner);
+          setRepo(_repo);
+          getRepoContents(_owner, _repo, path, ref);
+        }} />
+      ) : (
         <React.Fragment>
           {error && <div className='text-red-500'>{error}</div>}
           {Array.isArray(contents?.data) ? <RepoDirList contents={contents.data} path={path} changePath={changePath} /> : <></>}
-        </React.Fragment>}
+        </React.Fragment>
+      )}
     </div>
   );
 }

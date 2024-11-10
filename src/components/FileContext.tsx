@@ -10,7 +10,7 @@ export default function FileContext({ item }: { item: GitHubReposContext }) {
 
   const handleDownload = async () => {
     if (!accessToken) {
-      alert("アクセストークンが設定されていません");
+      alert("No access token is set");
       return;
     }
     try {
@@ -29,7 +29,7 @@ export default function FileContext({ item }: { item: GitHubReposContext }) {
         throw new Error("File does not have a download URL.");
       }
     } catch (error) {
-      console.error("ファイルのダウンロードに失敗しました:", error);
+      console.error("Failed to download file:", error);
     }
   };
 

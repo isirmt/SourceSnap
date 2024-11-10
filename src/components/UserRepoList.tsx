@@ -24,7 +24,7 @@ export default function UserRepoList({ octokit, onSelectRepo }: RepoListProps) {
           setUserRepos(userReposResponse);
           setStarredRepos(starredReposResponse);
         } catch (err) {
-          console.error('リポジトリの取得に失敗しました:', err);
+          console.error('Failed to get repos:', err);
         }
       };
       fetchRepos();
@@ -33,7 +33,7 @@ export default function UserRepoList({ octokit, onSelectRepo }: RepoListProps) {
 
   return (
     <div>
-      <h2 className='font-bold'>候補のリポジトリ一覧</h2>
+      <h2 className='font-bold'>Candidate Repository List</h2>
       <div className='max-w-full w-[40rem]'>
         <ul className='w-full border-x border-slate-200 rounded-lg rounded-t-none overflow-clip'>
           {userRepos?.data.map((repo) => (

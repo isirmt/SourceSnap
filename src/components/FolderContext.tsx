@@ -11,7 +11,7 @@ export default function FolderContext({ item, setPathFunc }: { item: GitHubRepos
   const handleDownload = async () => {
     const { owner, repo } = parseGitHubUrl(item.url)
     if (!accessToken) {
-      alert("アクセストークンが設定されていません");
+      alert("No access token is set");
       return;
     }
     try {
