@@ -10,6 +10,7 @@ import React from 'react';
 import { parseGitHubUrl } from '@/lib/github/urlParser';
 import UserRepoList from './UserRepoList';
 import RepoDirList from './RepoDirList';
+import DistributedInput from './DistributedInput';
 
 export default function RepoContentFetcher({ defaultTree }: { defaultTree?: DefaultTree }) {
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
@@ -98,54 +99,57 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
   };
 
   return (
-    <div className='flex flex-col items-center'>
-      <div>
-        <input
-          type='text'
-          placeholder='URL'
-          value={url}
-          onChange={(e) => setURL(e.target.value)}
-          onPaste={(e) => {
-            const updatedDir = parseGitHubUrl(e.clipboardData.getData("text"));
-            setOwner(updatedDir.owner);
-            setRepo(updatedDir.repo);
-            setPath(updatedDir.path);
-            setRef(updatedDir.ref);
-            getRepoContents(updatedDir.owner, updatedDir.repo, updatedDir.path, updatedDir.ref);
-          }}
-          className='border p-2 mb-2 block'
-        />
-        <input
-          type='text'
-          placeholder='Owner'
-          value={owner}
-          onChange={(e) => setOwner(e.target.value)}
-          className='border p-2 mb-2'
-        />
-        <input
-          type='text'
-          placeholder='Repo'
-          value={repo}
-          onChange={(e) => setRepo(e.target.value)}
-          className='border p-2 mb-2'
-        />
-        <input
-          type='text'
-          placeholder='Path (Optional)'
-          value={path}
-          onChange={(e) => setPath(e.target.value)}
-          className='border p-2 mb-2'
-        />
-        <input
-          type='text'
-          placeholder='Ref (Optional)'
-          value={ref}
-          onChange={(e) => setRef(e.target.value)}
-          className='border p-2 mb-2'
-        />
-        <button onClick={() => changePath()} className='bg-blue-500 text-white p-2'>
-          Get
-        </button>
+    <div className='flex flex-col items-center gap-2'>
+      <div className='max-w-full w-[40rem]'>
+        <div className='flex border rounded mb-2 hover:border-gray-400 overflow-hidden'>
+          <label
+            title='Triggered on paste from clipboard'
+            className='flex items-center justify-center select-none px-2'
+            htmlFor='tree:url'>
+            <span className='i-tabler-link' />
+          </label>
+          <input
+            id='tree:url'
+            type='text'
+            placeholder='Paste GitHub repo/dir URL'
+            value={url}
+            onChange={(e) => setURL(e.target.value)}
+            onPaste={(e) => {
+              const updatedDir = parseGitHubUrl(e.clipboardData.getData("text"));
+              setOwner(updatedDir.owner);
+              setRepo(updatedDir.repo);
+              setPath(updatedDir.path);
+              setRef(updatedDir.ref);
+              getRepoContents(updatedDir.owner, updatedDir.repo, updatedDir.path, updatedDir.ref);
+            }}
+            className='transition-colors p-2 flex-grow outline-none'
+          />
+        </div>
+        <div className='flex w-full items-stretch rounded overflow-hidden'>
+          <DistributedInput
+            value={owner}
+            setValue={setOwner}
+            placeholder="Owner"
+            num={5} />
+          <DistributedInput
+            value={repo}
+            setValue={setRepo}
+            placeholder="Repo"
+            num={5} />
+          <DistributedInput
+            value={path}
+            setValue={setPath}
+            placeholder="Path (Optional)"
+            num={5} />
+          <DistributedInput
+            value={ref}
+            setValue={setRef}
+            placeholder="Ref (Optional)"
+            num={5} />
+          <button onClick={() => changePath()} className='transition-colors block bg-blue-500 hover:bg-blue-600 text-white w-1/5 py-2'>
+            GET
+          </button>
+        </div>
       </div>
 
       {!owner || !repo ? (

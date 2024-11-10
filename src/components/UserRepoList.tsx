@@ -32,30 +32,28 @@ export default function UserRepoList({ octokit, onSelectRepo }: RepoListProps) {
   }, [octokit]);
 
   return (
-    <div>
+    <div className='max-w-full w-[40rem]'>
       <h2 className='font-bold'>Candidate Repository List</h2>
-      <div className='max-w-full w-[40rem]'>
-        <ul className='w-full border-x border-slate-200 rounded-lg rounded-t-none overflow-clip'>
-          {userRepos?.data.map((repo) => (
-            <li key={repo.id}>
-              <RepoContext
-                owner={repo.owner.login}
-                repo={repo.name}
-                onSelectRepo={() => onSelectRepo(repo.owner.login, repo.name)}
-              />
-            </li>
-          ))}
-          {starredRepos?.data.map((repo) => (
-            <li key={repo.id}>
-              <RepoContext
-                owner={repo.owner.login}
-                repo={repo.name}
-                onSelectRepo={() => onSelectRepo(repo.owner.login, repo.name)}
-              />
-            </li>
-          ))}
-        </ul>
-      </div>
+      <ul className='block w-full border-x border-slate-200 rounded-lg overflow-clip'>
+        {userRepos?.data.map((repo) => (
+          <li key={repo.id}>
+            <RepoContext
+              owner={repo.owner.login}
+              repo={repo.name}
+              onSelectRepo={() => onSelectRepo(repo.owner.login, repo.name)}
+            />
+          </li>
+        ))}
+        {starredRepos?.data.map((repo) => (
+          <li key={repo.id}>
+            <RepoContext
+              owner={repo.owner.login}
+              repo={repo.name}
+              onSelectRepo={() => onSelectRepo(repo.owner.login, repo.name)}
+            />
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
