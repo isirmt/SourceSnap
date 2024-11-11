@@ -40,7 +40,7 @@ export default function Home() {
             It downloads correctly even if it contains sources, images, or music files.
           </div>
           <div className='mx-auto my-5 flex flex-wrap items-center justify-center gap-8'>
-            <div className='flex size-32 items-center justify-center rounded-xl border-8 border-blue-500 text-8xl text-blue-500'>
+            <div className='flex size-32 items-center justify-center rounded-xl border-8 border-emerald-600 text-8xl text-emerald-600'>
               <span className='i-tabler-folders' />
             </div>
           </div>
@@ -66,6 +66,9 @@ export default function Home() {
             <div className='flex size-32 items-center justify-center rounded-xl border-8 border-orange-400 text-8xl text-orange-400'>
               <span className='i-tabler-info-triangle-filled' />
             </div>
+          </div>
+          <div className='pointer-events-none relative mx-auto my-4 aspect-[4/1] w-full max-w-[40rem] select-none overflow-hidden rounded-lg shadow'>
+            <Image src='/assets/screenshots/status_list.png' fill alt='status_list' />
           </div>
         </div>
       </section>
