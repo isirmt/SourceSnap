@@ -9,7 +9,7 @@ import SessionButton from './fragment/SessionButton';
 export async function Header() {
   const session: Session | null = await auth();
   return (
-    <header className='flex h-12 w-full justify-center border-b border-slate-300 bg-slate-100'>
+    <header className='relative z-50 flex h-12 w-full justify-center border-b border-slate-300 bg-slate-100'>
       <div className='flex h-full w-full max-w-[72rem] items-stretch justify-between px-4'>
         <a href='/tree' className='flex items-center text-xl font-bold text-slate-800'>
           Tree Downloader

@@ -19,7 +19,7 @@ export default function RootLayout({
       <body className='flex flex-col'>
         <Header />
         <div className='flex h-auto min-h-[calc(100svh_-_3rem)] flex-col'>
-          <div className='flex-grow'>{children}</div>
+          <div className='relative flex-grow'>{children}</div>
           <Footer />
         </div>
       </body>
