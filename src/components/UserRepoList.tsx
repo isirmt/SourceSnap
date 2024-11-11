@@ -23,11 +23,17 @@ export default function UserRepoList({ octokit, onSelectRepo }: RepoListProps) {
       if (octokit) {
         try {
           setLoading(true);
+          const userRepoIds = new Set(userRepos.map(repo => repo.id));
+          const starredRepoIds = new Set(starredRepos.map(repo => repo.id));
+
           const userReposResponse = await octokit.repos.listForAuthenticatedUser({ per_page: 30, page: _userPage });
           const starredReposResponse = await octokit.activity.listReposStarredByAuthenticatedUser({ per_page: 30, page: _starredPage });
 
-          setUserRepos((prevRepos) => [...prevRepos, ...userReposResponse.data]);
-          setStarredRepos((prevRepos) => [...prevRepos, ...starredReposResponse.data]);
+          const newUserRepos = userReposResponse.data.filter(repo => !userRepoIds.has(repo.id));
+          const newStarredRepos = starredReposResponse.data.filter(repo => !starredRepoIds.has(repo.id));
+
+          setUserRepos((prevRepos) => [...prevRepos, ...newUserRepos]);
+          setStarredRepos((prevRepos) => [...prevRepos, ...newStarredRepos]);
         } catch (err) {
           console.error('Failed to get repos:', err);
         } finally {
@@ -37,6 +43,7 @@ export default function UserRepoList({ octokit, onSelectRepo }: RepoListProps) {
     };
 
     fetchRepos(userPage, starredPage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [octokit, userPage, starredPage]);
 
   const loadMoreUserRepos = () => setUserPage((prevPage) => prevPage + 1);
@@ -56,9 +63,7 @@ export default function UserRepoList({ octokit, onSelectRepo }: RepoListProps) {
           </li>
         ))}
       </ul>
-      <button onClick={loadMoreUserRepos} disabled={loading} className="p-2 bg-blue-500 text-white disabled:bg-gray-400 disabled:text-gray-700 rounded my-2 hover:bg-blue-600 transition-colors">
-        {loading ? 'Loading...' : 'Load More'}
-      </button>
+      <BlueLoadButton onClick={loadMoreUserRepos} isLoading={loading} />
       <h2 className='font-bold'>Your Starred Repositories</h2>
       <ul className='block w-full border-x border-slate-200 rounded-lg overflow-clip'>
         {starredRepos.map((repo) => (
@@ -71,9 +76,13 @@ export default function UserRepoList({ octokit, onSelectRepo }: RepoListProps) {
           </li>
         ))}
       </ul>
-      <button onClick={loadMoreStarredRepos} disabled={loading} className="p-2 bg-blue-500 text-white disabled:bg-gray-400 disabled:text-gray-700 rounded my-2 hover:bg-blue-600 transition-colors">
-        {loading ? 'Loading...' : 'Load More'}
-      </button>
+      <BlueLoadButton onClick={loadMoreStarredRepos} isLoading={loading} />
     </div>
   );
+}
+
+function BlueLoadButton({ onClick, isLoading }: { onClick: () => void; isLoading: boolean }) {
+  return <button onClick={onClick} disabled={isLoading} className="block font-bold mx-auto p-2 bg-transparent border border-blue-500 text-blue-500 disabled:bg-gray-400 disabled:text-gray-700 disabled:border-gray-400 rounded my-2 hover:bg-blue-500 hover:text-white transition-colors">
+    {isLoading ? 'Loading...' : 'Load More'}
+  </button>
 }
