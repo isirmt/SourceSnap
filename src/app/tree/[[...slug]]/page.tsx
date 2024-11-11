@@ -1,5 +1,5 @@
 import { Session } from 'next-auth';
-import SessionButton from '@/components/SessionButton';
+import SessionButton from '@/components/common/fragment/SessionButton';
 import { auth } from '@/lib/auth';
 import ListPageClient from './page.client';
 

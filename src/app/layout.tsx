@@ -1,8 +1,8 @@
 import './globals.css';
 import React from 'react';
-import Footer from '@/components/Footer';
-import { Header } from '@/components/Header';
+import Footer from '@/components/common/Footer';
 import type { Metadata } from 'next';
+import { Header } from '@/components/Header';
 
 export const metadata: Metadata = {
   title: 'Create Next App',

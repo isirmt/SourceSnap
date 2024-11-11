@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { DownloadStatus, DownloadStatusData } from '@/types/DownloadStatus';
 import { GitHubReposContext } from '@/types/GitHubReposContext';
-import DownloadStatusViewer from './DownloadStatusViewer';
-import FileContext from './FileContext';
-import FolderContext from './FolderContext';
-import PathLayers from './PathLayers';
+import DownloadStatusViewer from '../DownloadStatusViewer';
+import FileContent from './content/FileContent';
+import FolderContent from './content/FolderContent';
+import PathLayers from './fragment/PathLayers';
 
 interface RepoContentsProps {
   contents: GitHubReposContext[] | undefined;
@@ -40,7 +40,7 @@ export default function RepoDirList({ contents, owner, repo, path, changePath }:
               .filter((item) => item.type === 'dir')
               .map((item) => (
                 <li key={item.path}>
-                  <FolderContext
+                  <FolderContent
                     item={item}
                     setPathFunc={changePath}
                     updateFunc={(status) => updateStatus(item.path, status)}
@@ -51,7 +51,7 @@ export default function RepoDirList({ contents, owner, repo, path, changePath }:
               .filter((item) => item.type === 'file')
               .map((item) => (
                 <li key={item.path}>
-                  <FileContext item={item} updateFunc={(status) => updateStatus(item.path, status)} />
+                  <FileContent item={item} updateFunc={(status) => updateStatus(item.path, status)} />
                 </li>
               ))}
           </ul>

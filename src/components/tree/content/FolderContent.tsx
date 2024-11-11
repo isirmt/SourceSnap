@@ -4,9 +4,9 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/github/tokenManager';
 import { DownloadStatus } from '@/types/DownloadStatus';
 import { GitHubReposContext } from '@/types/GitHubReposContext';
-import BrowserListItem from './BrowserListItem';
+import BrowserListItem from './wrapper/BrowserListItem';
 
-interface FolderContextProps {
+interface FolderContentProps {
   item: GitHubReposContext;
   // eslint-disable-next-line no-unused-vars
   setPathFunc: (path: string) => void;
@@ -14,7 +14,7 @@ interface FolderContextProps {
   updateFunc: (status: DownloadStatus) => void;
 }
 
-export default function FolderContext({ item, setPathFunc, updateFunc: updateStatus }: FolderContextProps) {
+export default function FolderContent({ item, setPathFunc, updateFunc: updateStatus }: FolderContentProps) {
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
 
   const handleDownload = async () => {

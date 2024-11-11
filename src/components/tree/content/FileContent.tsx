@@ -4,15 +4,15 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/github/tokenManager';
 import { DownloadStatus } from '@/types/DownloadStatus';
 import { GitHubReposContext } from '@/types/GitHubReposContext';
-import BrowserListItem from './BrowserListItem';
+import BrowserListItem from './wrapper/BrowserListItem';
 
-interface FileContextProps {
+interface FileContentProps {
   item: GitHubReposContext;
   // eslint-disable-next-line no-unused-vars
   updateFunc: (status: DownloadStatus) => void;
 }
 
-export default function FileContext({ item, updateFunc: updateStatus }: FileContextProps) {
+export default function FileContent({ item, updateFunc: updateStatus }: FileContentProps) {
   const accessToken = useSelector((state: RootState) => state.auth.accessToken);
 
   const handleDownload = async () => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Octokit } from '@octokit/rest';
 import { GetResponseTypeFromEndpointMethod } from '@octokit/types';
-import RepoContext from './RepoContext';
+import RepoContent from './content/RepoContent';
 
 interface RepoListProps {
   octokit: Octokit | null;
@@ -63,7 +63,7 @@ export default function UserRepoList({ octokit, onSelectRepo }: RepoListProps) {
       <ul className='block w-full overflow-clip rounded-lg border-x border-slate-200'>
         {userRepos.map((repo) => (
           <li key={`user:${repo.id}`}>
-            <RepoContext
+            <RepoContent
               owner={repo.owner.login}
               repo={repo.name}
               onSelectRepo={() => onSelectRepo(repo.owner.login, repo.name)}
@@ -76,7 +76,7 @@ export default function UserRepoList({ octokit, onSelectRepo }: RepoListProps) {
       <ul className='block w-full overflow-clip rounded-lg border-x border-slate-200'>
         {starredRepos.map((repo) => (
           <li key={`star:${repo.id}`}>
-            <RepoContext
+            <RepoContent
               owner={repo.owner.login}
               repo={repo.name}
               onSelectRepo={() => onSelectRepo(repo.owner.login, repo.name)}

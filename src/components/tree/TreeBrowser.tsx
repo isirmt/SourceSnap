@@ -9,7 +9,7 @@ import { RootState } from '@/lib/github/tokenManager';
 import { parseGitHubUrl } from '@/lib/github/urlParser';
 import { updateUrl } from '@/lib/tree/urlManager';
 import { DefaultTree } from '@/types/GitHubDefaultTree';
-import DistributedInput from './DistributedInput';
+import DistributedInput from '../common/fragment/DistributedInput';
 import RepoDirList from './RepoDirList';
 import UserRepoList from './UserRepoList';
 

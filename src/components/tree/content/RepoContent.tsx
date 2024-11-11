@@ -1,5 +1,5 @@
 'use client';
-export default function RepoContext({
+export default function RepoContent({
   owner,
   repo,
   onSelectRepo,
