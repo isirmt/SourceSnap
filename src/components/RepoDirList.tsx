@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { GitHubReposContext } from '@/types/GitHubReposContext';
-import FolderContext from './FolderContext';
-import FileContext from './FileContext';
-import PathLayers from './PathLayers';
-import DownloadStatusViewer from './DownloadStatusViewer';
 import { DownloadStatus, DownloadStatusData } from '@/types/DownloadStatus';
+import { GitHubReposContext } from '@/types/GitHubReposContext';
+import DownloadStatusViewer from './DownloadStatusViewer';
+import FileContext from './FileContext';
+import FolderContext from './FolderContext';
+import PathLayers from './PathLayers';
 
 interface RepoContentsProps {
   contents: GitHubReposContext[] | undefined;
   owner: string;
   repo: string;
   path: string;
+  // eslint-disable-next-line no-unused-vars
   changePath: (updatedPath: string) => void;
 }
 
@@ -30,21 +31,29 @@ export default function RepoDirList({ contents, owner, repo, path, changePath }:
   };
 
   return (
-    <div className='max-w-full w-[40rem]'>
+    <div className='w-[40rem] max-w-full'>
       {contents && Array.isArray(contents) && (
         <React.Fragment>
           <PathLayers path={path} setPathFunc={changePath} concatComponent />
-          <ul className='w-full border-x border-slate-200 rounded-lg rounded-t-none overflow-clip'>
-            {contents.filter(item => item.type === "dir").map(item => (
-              <li key={item.path}>
-                <FolderContext item={item} setPathFunc={changePath} updateFunc={(status) => updateStatus(item.path, status)} />
-              </li>
-            ))}
-            {contents.filter(item => item.type === "file").map(item => (
-              <li key={item.path}>
-                <FileContext item={item} updateFunc={(status) => updateStatus(item.path, status)} />
-              </li>
-            ))}
+          <ul className='w-full overflow-clip rounded-lg rounded-t-none border-x border-slate-200'>
+            {contents
+              .filter((item) => item.type === 'dir')
+              .map((item) => (
+                <li key={item.path}>
+                  <FolderContext
+                    item={item}
+                    setPathFunc={changePath}
+                    updateFunc={(status) => updateStatus(item.path, status)}
+                  />
+                </li>
+              ))}
+            {contents
+              .filter((item) => item.type === 'file')
+              .map((item) => (
+                <li key={item.path}>
+                  <FileContext item={item} updateFunc={(status) => updateStatus(item.path, status)} />
+                </li>
+              ))}
           </ul>
         </React.Fragment>
       )}
@@ -57,4 +66,4 @@ export default function RepoDirList({ contents, owner, repo, path, changePath }:
       />
     </div>
   );
-};
+}

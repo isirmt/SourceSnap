@@ -12,7 +12,8 @@ export default async function SessionButton() {
           }}
         >
           <button className='my-5 rounded border border-blue-400 bg-transparent px-5 py-2 font-bold text-blue-400 transition-colors hover:bg-blue-100'>
-            <span className='i-tabler-brand-github translate-y-1 mr-1' />SignIn
+            <span className='i-tabler-brand-github mr-1 translate-y-1' />
+            SignIn
           </button>
         </form>
       )}

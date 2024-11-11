@@ -1,5 +1,5 @@
 export type GitHubReposContext = {
-  type: "dir" | "file" | "submodule" | "symlink";
+  type: 'dir' | 'file' | 'submodule' | 'symlink';
   size: number;
   name: string;
   path: string;
@@ -10,8 +10,8 @@ export type GitHubReposContext = {
   html_url: string | null;
   download_url: string | null;
   _links: {
-      git: string | null;
-      html: string | null;
-      self: string;
+    git: string | null;
+    html: string | null;
+    self: string;
   };
-}
+};

@@ -1,12 +1,16 @@
-import { NextResponse } from 'next/server';
 import { Octokit } from '@octokit/rest';
 import JSZip from 'jszip';
-import { GitHubReposContext } from '@/types/GitHubReposContext';
+import { NextResponse } from 'next/server';
 import { Session } from 'next-auth';
 import { auth } from '@/lib/auth';
+import { GitHubReposContext } from '@/types/GitHubReposContext';
 
-async function getFolderContents(octokit: Octokit, owner: string, repo: string, path: string): Promise<GitHubReposContext[]> {
-
+async function getFolderContents(
+  octokit: Octokit,
+  owner: string,
+  repo: string,
+  path: string,
+): Promise<GitHubReposContext[]> {
   const contents = await octokit.repos.getContent({
     owner,
     repo,
@@ -25,16 +29,16 @@ async function getFolderContents(octokit: Octokit, owner: string, repo: string, 
     }
 
     return files;
-  } else return []
+  } else return [];
 }
 
 export async function GET(request: Request) {
   const session: Session | null = await auth();
 
   if (!session) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
-  
+
   const { searchParams } = new URL(request.url);
   const owner = searchParams.get('owner');
   const repo = searchParams.get('repo');
@@ -65,9 +69,8 @@ export async function GET(request: Request) {
         'Content-Disposition': `attachment; filename="${repo}.zip"`,
       },
     });
-
   } catch (error) {
     console.error('Error fetching the file:', error);
-    return NextResponse.json({ error: "Error Occurred" }, { status: 500 });
+    return NextResponse.json({ error: 'Error Occurred' }, { status: 500 });
   }
 }

@@ -1,38 +1,40 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 /* eslint-disable @next/next/no-img-element */
-import { auth } from "@/lib/auth";
-import { Session } from "next-auth";
-import SessionButton from "./SessionButton";
-import React from "react";
-import { ArrowDownBlock } from "./ArrowBlock";
+import React from 'react';
+import { Session } from 'next-auth';
+import { auth } from '@/lib/auth';
+import { ArrowDownBlock } from './ArrowBlock';
+import SessionButton from './SessionButton';
 
 export async function Header() {
   const session: Session | null = await auth();
-  return <header className="w-full h-12 bg-slate-100 justify-center flex border-b border-slate-300">
-    <div className="max-w-[72rem] px-4 items-stretch w-full h-full flex justify-between">
-      <a href="/tree" className="text-xl font-bold text-slate-800 flex items-center">
-        Tree Downloader
-      </a>
+  return (
+    <header className='flex h-12 w-full justify-center border-b border-slate-300 bg-slate-100'>
+      <div className='flex h-full w-full max-w-[72rem] items-stretch justify-between px-4'>
+        <a href='/tree' className='flex items-center text-xl font-bold text-slate-800'>
+          Tree Downloader
+        </a>
 
-      <div className="group h-auto flex items-stretch relative cursor-pointer">
-        <div className="flex gap-1 px-2 items-center text-slate-800 group-hover:bg-slate-200">
-          {session ? (
-            <React.Fragment>
-              <img alt="user-icon" src={session.user.image!} className="size-8 rounded-full" />
-              {session.user.id}
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <div className="size-8 rounded-full bg-slate-300" />
-              Not signed in
-            </React.Fragment>)
-          }
-          <ArrowDownBlock />
-        </div>
-        <div className="hidden cursor-auto group-hover:block absolute top-10 bg-slate-50 border right-0 px-3 rounded shadow">
-          <SessionButton />
+        <div className='group relative flex h-auto cursor-pointer items-stretch'>
+          <div className='flex items-center gap-1 px-2 text-slate-800 group-hover:bg-slate-200'>
+            {session ? (
+              <React.Fragment>
+                <img alt='user-icon' src={session.user.image!} className='size-8 rounded-full' />
+                {session.user.id}
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <div className='size-8 rounded-full bg-slate-300' />
+                Not signed in
+              </React.Fragment>
+            )}
+            <ArrowDownBlock />
+          </div>
+          <div className='absolute right-0 top-10 hidden cursor-auto rounded border bg-slate-50 px-3 shadow group-hover:block'>
+            <SessionButton />
+          </div>
         </div>
       </div>
-    </div>
-  </header>
+    </header>
+  );
 }

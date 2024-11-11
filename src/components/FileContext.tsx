@@ -1,13 +1,14 @@
-'use client'
-import { RootState } from "@/lib/github/tokenManager";
-import { GitHubReposContext } from "@/types/GitHubReposContext";
-import saveAs from "file-saver";
-import { useSelector } from "react-redux";
-import BrowserListItem from "./BrowserListItem";
-import { DownloadStatus } from "@/types/DownloadStatus";
+'use client';
+import saveAs from 'file-saver';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/github/tokenManager';
+import { DownloadStatus } from '@/types/DownloadStatus';
+import { GitHubReposContext } from '@/types/GitHubReposContext';
+import BrowserListItem from './BrowserListItem';
 
 interface FileContextProps {
   item: GitHubReposContext;
+  // eslint-disable-next-line no-unused-vars
   updateFunc: (status: DownloadStatus) => void;
 }
 
@@ -17,7 +18,7 @@ export default function FileContext({ item, updateFunc: updateStatus }: FileCont
   const handleDownload = async () => {
     updateStatus('downloading');
     if (!accessToken) {
-      alert("No access token is set");
+      alert('No access token is set');
       return;
     }
     try {
@@ -30,17 +31,19 @@ export default function FileContext({ item, updateFunc: updateStatus }: FileCont
         saveAs(blob, item.name);
         updateStatus('completed');
       } else {
-        throw new Error("File does not have a download URL.");
+        throw new Error('File does not have a download URL.');
       }
     } catch (error) {
-      console.error("Failed to download file:", error);
+      console.error('Failed to download file:', error);
       updateStatus('error');
     }
   };
 
-  return <BrowserListItem
-    item={item}
-    itemClickFunc={() => window.open(item.html_url!, '_blank', 'noopener,noreferrer')}
-    downloadFunc={handleDownload}
-  />;
+  return (
+    <BrowserListItem
+      item={item}
+      itemClickFunc={() => window.open(item.html_url!, '_blank', 'noopener,noreferrer')}
+      downloadFunc={handleDownload}
+    />
+  );
 }

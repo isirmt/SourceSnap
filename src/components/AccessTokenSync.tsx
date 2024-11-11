@@ -1,9 +1,9 @@
-'use client'
+'use client';
 
-import { setAccessToken } from "@/lib/github/tokenManager";
-import { useSession } from "next-auth/react";
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useDispatch } from 'react-redux';
+import { setAccessToken } from '@/lib/github/tokenManager';
 
 export default function AccessTokenSync() {
   const { data: session } = useSession();

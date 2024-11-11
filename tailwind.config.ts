@@ -1,5 +1,5 @@
-import type { Config } from "tailwindcss";
 import { iconsPlugin, getIconCollections, } from '@egoist/tailwindcss-icons'
+import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: [

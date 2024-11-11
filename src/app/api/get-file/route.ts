@@ -1,13 +1,13 @@
-import { NextResponse } from 'next/server';
 import { Octokit } from '@octokit/rest';
-import { auth } from '@/lib/auth';
+import { NextResponse } from 'next/server';
 import { Session } from 'next-auth';
+import { auth } from '@/lib/auth';
 
 export async function GET(request: Request) {
   const session: Session | null = await auth();
 
   if (!session) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
   const { searchParams } = new URL(request.url);
   const downloadUrl = searchParams.get('download_url');
@@ -32,12 +32,11 @@ export async function GET(request: Request) {
     return new NextResponse(fileBlob, {
       headers: {
         'Content-Type': 'application/octet-stream',
-        'Content-Disposition': `attachment; filename="downloaded_file"`
+        'Content-Disposition': `attachment; filename="downloaded_file"`,
       },
     });
-
   } catch (error) {
     console.error('Error fetching the file:', error);
-    return NextResponse.json({ error: "Error Occurred" }, { status: 500 });
+    return NextResponse.json({ error: 'Error Occurred' }, { status: 500 });
   }
 }

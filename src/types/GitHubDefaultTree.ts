@@ -3,4 +3,4 @@ export type DefaultTree = {
   repo?: string;
   path?: string;
   ref?: string;
-}
+};
