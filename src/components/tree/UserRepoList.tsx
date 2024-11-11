@@ -31,7 +31,11 @@ export default function UserRepoList({ octokit, onSelectRepo }: RepoListProps) {
           const userRepoIds = new Set(userRepos.map((repo) => repo.id));
           const starredRepoIds = new Set(starredRepos.map((repo) => repo.id));
 
-          const userReposResponse = await octokit.repos.listForAuthenticatedUser({ per_page: 30, page: _userPage });
+          const userReposResponse = await octokit.repos.listForAuthenticatedUser({
+            per_page: 30,
+            page: _userPage,
+            sort: 'pushed',
+          });
           const starredReposResponse = await octokit.activity.listReposStarredByAuthenticatedUser({
             per_page: 30,
             page: _starredPage,
