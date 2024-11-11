@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import React from 'react';
 import { Octokit } from '@octokit/rest';
 import { GetResponseTypeFromEndpointMethod } from '@octokit/types';
+import Link from 'next/link';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/github/tokenManager';
 import { parseGitHubUrl } from '@/lib/github/urlParser';
@@ -169,7 +170,23 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
         <>
           {error && <div className='text-red-500'>{error}</div>}
           {Array.isArray(contents?.data) ? (
-            <RepoDirList contents={contents.data} owner={owner} repo={repo} path={path} changePath={changePath} />
+            <React.Fragment>
+              <h1 className='block w-[40rem] max-w-full p-2'>
+                <Link
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  title='Open with GitHub'
+                  href={`https://github.com/${owner}/${repo}`}
+                  className='inline-flex justify-start gap-1 text-xl underline'
+                >
+                  <span className='i-tabler-brand-github-filled translate-y-1.5' />
+                  <span>
+                    {owner}/{repo}
+                  </span>
+                </Link>
+              </h1>
+              <RepoDirList contents={contents.data} owner={owner} repo={repo} path={path} changePath={changePath} />
+            </React.Fragment>
           ) : null}
         </>
       )}
