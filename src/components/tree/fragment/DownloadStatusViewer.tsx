@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import React from 'react';
-import { ArrowDownBlock, ArrowUpBlock } from './common/fragment/ArrowBlock';
+import { ArrowDownBlock, ArrowUpBlock } from '@/components/common/fragment/ArrowBlock';
 
 export default function DownloadStatusViewer({
   status,

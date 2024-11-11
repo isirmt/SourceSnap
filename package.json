@@ -1,5 +1,5 @@
 {
-  "name": "github-folder-downloader",
+  "name": "tree-downloader",
   "version": "0.1.0",
   "private": true,
   "scripts": {

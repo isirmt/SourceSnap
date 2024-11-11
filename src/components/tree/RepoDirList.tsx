@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { DownloadStatus, DownloadStatusData } from '@/types/DownloadStatus';
 import { GitHubReposContext } from '@/types/GitHubReposContext';
-import DownloadStatusViewer from '../DownloadStatusViewer';
 import FileContent from './content/FileContent';
 import FolderContent from './content/FolderContent';
+import DownloadStatusViewer from './fragment/DownloadStatusViewer';
 import PathLayers from './fragment/PathLayers';
 
 interface RepoContentsProps {

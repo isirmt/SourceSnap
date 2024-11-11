@@ -3,8 +3,8 @@
 import React from 'react';
 import { Session } from 'next-auth';
 import { auth } from '@/lib/auth';
-import { ArrowDownBlock } from './ArrowBlock';
-import SessionButton from './SessionButton';
+import { ArrowDownBlock } from './fragment/ArrowBlock';
+import SessionButton from './fragment/SessionButton';
 
 export async function Header() {
   const session: Session | null = await auth();
