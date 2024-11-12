@@ -1,7 +1,7 @@
 import './globals.css';
 import React from 'react';
 import Footer from '@/components/common/Footer';
-import { Header } from '@/components/common/Header';
+import Header from '@/components/common/Header';
 import { generateMetadataTemplate } from '@/lib/SEO';
 import type { Metadata } from 'next';
 

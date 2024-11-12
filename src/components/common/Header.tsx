@@ -6,7 +6,7 @@ import { auth } from '@/lib/auth';
 import { ArrowDownBlock } from './fragment/ArrowBlock';
 import SessionButton from './fragment/SessionButton';
 
-export async function Header() {
+export default async function Header() {
   const session: Session | null = await auth();
   return (
     <header className='relative z-50 flex h-12 w-full justify-center border-b border-slate-300 bg-slate-100'>
