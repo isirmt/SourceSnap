@@ -1,7 +1,16 @@
+import { Metadata } from 'next';
 import { Session } from 'next-auth';
 import SessionButton from '@/components/common/fragment/SessionButton';
+import { generateMetadataTemplate } from '@/lib/SEO';
 import { auth } from '@/lib/auth';
 import ListPageClient from './page.client';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug?: string[] }> }): Promise<Metadata> {
+  const [owner, repo] = (await params).slug ?? [];
+  return generateMetadataTemplate({
+    title: owner && repo ? `${owner}/${repo}` : undefined,
+  });
+}
 
 export default async function ListPage({
   params,

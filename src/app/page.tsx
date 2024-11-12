@@ -1,7 +1,13 @@
+import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { generateMetadataTemplate } from '@/lib/SEO';
 
-export default function Home() {
+export async function generateMetadata(): Promise<Metadata> {
+  return generateMetadataTemplate({});
+}
+
+export default async function Home() {
   return (
     <main className='flex h-full min-h-screen flex-col'>
       <section className='flex flex-col-reverse items-center justify-between gap-y-10 bg-gradient-to-r from-teal-400 to-blue-500 p-10 lg:flex-row'>
