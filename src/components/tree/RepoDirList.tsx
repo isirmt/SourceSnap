@@ -19,9 +19,12 @@ interface RepoContentsProps {
 
 export default function RepoDirList({ contents, owner, repo, path, changePath }: RepoContentsProps) {
   const [status, setStatus] = useState<DownloadStatusData[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleDownload = async () => {
-    DownloadFolder((status: DownloadStatus) => updateStatus(path, status), owner, repo, path);
+    setIsProcessing(true);
+    await DownloadFolder((status: DownloadStatus) => updateStatus(path, status), owner, repo, path);
+    setIsProcessing(false);
   };
 
   const updateStatus = (path: string, newStatus: DownloadStatus) => {
@@ -44,6 +47,7 @@ export default function RepoDirList({ contents, owner, repo, path, changePath }:
           <ul className='w-full overflow-clip rounded-lg rounded-t-none border-x border-slate-200'>
             {path !== '' && (
               <BrowserListItem
+                isDownloading={isProcessing}
                 item={{ name: `.`, type: 'dir' }}
                 itemClickFunc={() => {}}
                 downloadFunc={handleDownload}
