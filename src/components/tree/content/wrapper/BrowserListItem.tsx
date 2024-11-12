@@ -1,11 +1,17 @@
 import { GitHubReposContext } from '@/types/GitHubReposContext';
 
+export type ListItem = {
+  name: string;
+  html_url?: string;
+  type: 'dir' | 'file' | 'submodule' | 'symlink';
+};
+
 export default function BrowserListItem({
   item,
   itemClickFunc,
   downloadFunc,
 }: {
-  item: GitHubReposContext;
+  item: GitHubReposContext | ListItem;
   itemClickFunc: () => void;
   downloadFunc: () => void;
 }) {
@@ -16,13 +22,15 @@ export default function BrowserListItem({
         {item.name}
       </button>
       <div className='flex gap-0.5 p-0.5'>
-        <button
-          onClick={() => window.open(item.html_url!)}
-          title='Open with GitHub'
-          className='flex h-full items-center justify-center rounded border border-gray-500 bg-white px-1.5 text-gray-500 transition-colors hover:bg-gray-500 hover:text-white'
-        >
-          <div className='i-tabler-brand-github size-5' />
-        </button>
+        {item.html_url && (
+          <button
+            onClick={() => window.open(item.html_url!)}
+            title='Open with GitHub'
+            className='flex h-full items-center justify-center rounded border border-gray-500 bg-white px-1.5 text-gray-500 transition-colors hover:bg-gray-500 hover:text-white'
+          >
+            <div className='i-tabler-brand-github size-5' />
+          </button>
+        )}
         <button
           onClick={downloadFunc}
           title='Download'

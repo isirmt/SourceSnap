@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import saveAs from 'file-saver';
 import { DownloadStatus, DownloadStatusData } from '@/types/DownloadStatus';
 import { GitHubReposContext } from '@/types/GitHubReposContext';
 import FileContent from './content/FileContent';
 import FolderContent from './content/FolderContent';
+import BrowserListItem from './content/wrapper/BrowserListItem';
 import DownloadStatusViewer from './fragment/DownloadStatusViewer';
 import PathLayers from './fragment/PathLayers';
 
@@ -17,6 +19,25 @@ interface RepoContentsProps {
 
 export default function RepoDirList({ contents, owner, repo, path, changePath }: RepoContentsProps) {
   const [status, setStatus] = useState<DownloadStatusData[]>([]);
+
+  const handleDownload = async () => {
+    updateStatus(path, 'downloading');
+    try {
+      console.log(owner, repo, path);
+      const response = await fetch(
+        `/api/get-folder?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}&path=${path}`,
+      );
+      if (!response.ok) {
+        throw new Error('Failed to download folder');
+      }
+      const blob = await response.blob();
+      saveAs(blob, path.split('/').slice(-1)[0]);
+      updateStatus(path, 'completed');
+    } catch (error) {
+      console.error('Failed to download folder:', error);
+      updateStatus(path, 'error');
+    }
+  };
 
   const updateStatus = (path: string, newStatus: DownloadStatus) => {
     const itemName = `${owner}/${repo}: ${path}`;
@@ -36,6 +57,13 @@ export default function RepoDirList({ contents, owner, repo, path, changePath }:
         <React.Fragment>
           <PathLayers path={path} setPathFunc={changePath} concatComponent />
           <ul className='w-full overflow-clip rounded-lg rounded-t-none border-x border-slate-200'>
+            {path !== '' && (
+              <BrowserListItem
+                item={{ name: `.`, type: 'dir' }}
+                itemClickFunc={() => {}}
+                downloadFunc={handleDownload}
+              />
+            )}
             {contents
               .filter((item) => item.type === 'dir')
               .map((item) => (
