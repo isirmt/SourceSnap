@@ -1,5 +1,5 @@
 export function parseGitHubRepoUrl(url: string) {
-  const regex = /^https:\/\/github\.com\/([^/]+)\/([^/]+)(?:\/tree\/([^/]+)\/(.+))?$/;
+  const regex = /^https:\/\/github\.com\/([^/]+)\/([^/]+)(?:\/tree\/([^/]+)(?:\/(.+))?)?$/;
   const match = url.match(regex);
 
   if (!match) {

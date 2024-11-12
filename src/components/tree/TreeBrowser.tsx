@@ -110,9 +110,9 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
           placeholder='Paste GitHub repo/dir URL'
           value={url}
           onChange={(e) => {
+            setURL(e.target.value);
             const updatedDir = parseGitHubRepoUrl(e.target.value);
             handleUrlUpdate(updatedDir.owner, updatedDir.repo, updatedDir.path, updatedDir.ref);
-            setURL(e.target.value);
           }}
           onPaste={(e) => {
             const updatedDir = parseGitHubRepoUrl(e.clipboardData.getData('text'));
