@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import saveAs from 'file-saver';
+import { DownloadFolder } from '@/lib/github/downloader';
 import { DownloadStatus, DownloadStatusData } from '@/types/DownloadStatus';
 import { GitHubReposContext } from '@/types/GitHubReposContext';
 import FileContent from './content/FileContent';
@@ -21,22 +21,7 @@ export default function RepoDirList({ contents, owner, repo, path, changePath }:
   const [status, setStatus] = useState<DownloadStatusData[]>([]);
 
   const handleDownload = async () => {
-    updateStatus(path, 'downloading');
-    try {
-      console.log(owner, repo, path);
-      const response = await fetch(
-        `/api/get-folder?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}&path=${path}`,
-      );
-      if (!response.ok) {
-        throw new Error('Failed to download folder');
-      }
-      const blob = await response.blob();
-      saveAs(blob, path.split('/').slice(-1)[0]);
-      updateStatus(path, 'completed');
-    } catch (error) {
-      console.error('Failed to download folder:', error);
-      updateStatus(path, 'error');
-    }
+    DownloadFolder((status: DownloadStatus) => updateStatus(path, status), owner, repo, path);
   };
 
   const updateStatus = (path: string, newStatus: DownloadStatus) => {

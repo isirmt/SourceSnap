@@ -1,7 +1,5 @@
 'use client';
-import saveAs from 'file-saver';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/lib/github/tokenManager';
+import { DownloadFile } from '@/lib/github/downloader';
 import { DownloadStatus } from '@/types/DownloadStatus';
 import { GitHubReposContext } from '@/types/GitHubReposContext';
 import BrowserListItem from './wrapper/BrowserListItem';
@@ -13,30 +11,8 @@ interface FileContentProps {
 }
 
 export default function FileContent({ item, updateFunc: updateStatus }: FileContentProps) {
-  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
-
   const handleDownload = async () => {
-    updateStatus('downloading');
-    if (!accessToken) {
-      alert('No access token is set');
-      return;
-    }
-    try {
-      if (item.download_url) {
-        const response = await fetch(`/api/get-file?download_url=${encodeURIComponent(item.download_url)}`);
-        if (!response.ok) {
-          throw new Error('Failed to download file');
-        }
-        const blob = await response.blob();
-        saveAs(blob, item.name);
-        updateStatus('completed');
-      } else {
-        throw new Error('File does not have a download URL.');
-      }
-    } catch (error) {
-      console.error('Failed to download file:', error);
-      updateStatus('error');
-    }
+    DownloadFile((status) => updateStatus(status), item.download_url, item.name);
   };
 
   return (

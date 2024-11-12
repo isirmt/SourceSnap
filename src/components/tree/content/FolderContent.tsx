@@ -1,7 +1,5 @@
 'use client';
-import saveAs from 'file-saver';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/lib/github/tokenManager';
+import { DownloadFolder } from '@/lib/github/downloader';
 import { DownloadStatus } from '@/types/DownloadStatus';
 import { GitHubReposContext } from '@/types/GitHubReposContext';
 import BrowserListItem from './wrapper/BrowserListItem';
@@ -15,29 +13,9 @@ interface FolderContentProps {
 }
 
 export default function FolderContent({ item, setPathFunc, updateFunc: updateStatus }: FolderContentProps) {
-  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
-
   const handleDownload = async () => {
     const { owner, repo } = parseGitHubUrl(item.url);
-    updateStatus('downloading');
-    if (!accessToken) {
-      alert('No access token is set');
-      return;
-    }
-    try {
-      const response = await fetch(
-        `/api/get-folder?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}&path=${item.path}`,
-      );
-      if (!response.ok) {
-        throw new Error('Failed to download folder');
-      }
-      const blob = await response.blob();
-      saveAs(blob, item.name);
-      updateStatus('completed');
-    } catch (error) {
-      console.error('Failed to download folder:', error);
-      updateStatus('error');
-    }
+    DownloadFolder((status) => updateStatus(status), owner, repo, item.path);
   };
 
   return <BrowserListItem item={item} itemClickFunc={() => setPathFunc(item.path)} downloadFunc={handleDownload} />;
