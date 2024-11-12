@@ -14,7 +14,7 @@ export default async function Footer() {
           target='_blank'
           rel='noopener noreferrer'
           className='underline'
-          href='https://github.com/isirmt/TreeDownloader'
+          href='https://github.com/isirmt/SourceSnap'
         >
           src on GitHub
         </Link>
