@@ -37,7 +37,7 @@ export default function RepoDirList({ contents, owner, repo, path, changePath }:
   };
 
   return (
-    <div className='w-[40rem] max-w-full'>
+    <div className='w-full'>
       {contents && Array.isArray(contents) && (
         <React.Fragment>
           <PathLayers path={path} setPathFunc={changePath} concatComponent />

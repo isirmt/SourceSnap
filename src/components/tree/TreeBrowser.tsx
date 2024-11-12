@@ -7,11 +7,12 @@ import { GetResponseTypeFromEndpointMethod } from '@octokit/types';
 import Link from 'next/link';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/github/tokenManager';
-import { parseGitHubUrl } from '@/lib/github/urlParser';
+import { parseGitHubRepoUrl } from '@/lib/github/urlParser';
 import { updateUrl } from '@/lib/tree/urlManager';
 import { DefaultTree } from '@/types/GitHubDefaultTree';
 import DistributedInput from '../common/fragment/DistributedInput';
 import RepoDirList from './RepoDirList';
+import TreeSection from './TreeSection';
 import UserRepoList from './UserRepoList';
 
 export default function RepoContentFetcher({ defaultTree }: { defaultTree?: DefaultTree }) {
@@ -98,65 +99,63 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
   };
 
   return (
-    <div className='flex flex-col items-center gap-2'>
-      <div className='w-[40rem] max-w-full'>
-        <div className='mb-2 flex overflow-hidden rounded border hover:border-gray-400'>
-          <label className='flex select-none items-center justify-center px-2' htmlFor='tree:url'>
-            <span className='i-tabler-link' />
-          </label>
-          <input
-            id='tree:url'
-            type='text'
-            placeholder='Paste GitHub repo/dir URL'
-            value={url}
-            onChange={(e) => {
-              const updatedDir = parseGitHubUrl(e.target.value);
-              handleUrlUpdate(updatedDir.owner, updatedDir.repo, updatedDir.path, updatedDir.ref);
-              setURL(e.target.value);
-            }}
-            onPaste={(e) => {
-              const updatedDir = parseGitHubUrl(e.clipboardData.getData('text'));
-              handleUrlUpdate(updatedDir.owner, updatedDir.repo, updatedDir.path, updatedDir.ref);
-            }}
-            className='flex-grow p-2 outline-none transition-colors'
-          />
-        </div>
-        <div className='flex w-full items-stretch overflow-hidden rounded'>
-          <DistributedInput
-            value={owner}
-            setValue={setOwner}
-            onChange={(val) => handleUrlUpdate(val, repo, path, ref)}
-            placeholder='Owner'
-            num={5}
-          />
-          <DistributedInput
-            value={repo}
-            setValue={setRepo}
-            onChange={(val) => handleUrlUpdate(owner, val, path, ref)}
-            placeholder='Repo'
-            num={5}
-          />
-          <DistributedInput
-            value={path}
-            setValue={setPath}
-            onChange={(val) => handleUrlUpdate(owner, repo, val, ref)}
-            placeholder='Path (Optional)'
-            num={5}
-          />
-          <DistributedInput
-            value={ref}
-            setValue={setRef}
-            onChange={(val) => handleUrlUpdate(owner, repo, path, val)}
-            placeholder='Ref (Optional)'
-            num={5}
-          />
-          <button
-            onClick={() => changePath()}
-            className='block w-1/5 bg-blue-500 py-2 text-white transition-colors hover:bg-blue-600'
-          >
-            GET
-          </button>
-        </div>
+    <TreeSection>
+      <div className='mb-2 flex overflow-hidden rounded border hover:border-gray-400'>
+        <label className='flex select-none items-center justify-center px-2' htmlFor='tree:url'>
+          <span className='i-tabler-link' />
+        </label>
+        <input
+          id='tree:url'
+          type='text'
+          placeholder='Paste GitHub repo/dir URL'
+          value={url}
+          onChange={(e) => {
+            const updatedDir = parseGitHubRepoUrl(e.target.value);
+            handleUrlUpdate(updatedDir.owner, updatedDir.repo, updatedDir.path, updatedDir.ref);
+            setURL(e.target.value);
+          }}
+          onPaste={(e) => {
+            const updatedDir = parseGitHubRepoUrl(e.clipboardData.getData('text'));
+            handleUrlUpdate(updatedDir.owner, updatedDir.repo, updatedDir.path, updatedDir.ref);
+          }}
+          className='flex-grow p-2 outline-none transition-colors'
+        />
+      </div>
+      <div className='flex w-full items-stretch overflow-hidden rounded'>
+        <DistributedInput
+          value={owner}
+          setValue={setOwner}
+          onChange={(val) => handleUrlUpdate(val, repo, path, ref)}
+          placeholder='Owner'
+          num={5}
+        />
+        <DistributedInput
+          value={repo}
+          setValue={setRepo}
+          onChange={(val) => handleUrlUpdate(owner, val, path, ref)}
+          placeholder='Repo'
+          num={5}
+        />
+        <DistributedInput
+          value={path}
+          setValue={setPath}
+          onChange={(val) => handleUrlUpdate(owner, repo, val, ref)}
+          placeholder='Path (Optional)'
+          num={5}
+        />
+        <DistributedInput
+          value={ref}
+          setValue={setRef}
+          onChange={(val) => handleUrlUpdate(owner, repo, path, val)}
+          placeholder='Ref (Optional)'
+          num={5}
+        />
+        <button
+          onClick={() => changePath()}
+          className='block w-1/5 bg-blue-500 py-2 text-white transition-colors hover:bg-blue-600'
+        >
+          GET
+        </button>
       </div>
 
       {!owner || !repo ? (
@@ -190,6 +189,6 @@ export default function RepoContentFetcher({ defaultTree }: { defaultTree?: Defa
           ) : null}
         </>
       )}
-    </div>
+    </TreeSection>
   );
 }

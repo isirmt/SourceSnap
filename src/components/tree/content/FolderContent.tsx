@@ -1,5 +1,6 @@
 'use client';
 import { DownloadFolder } from '@/lib/github/downloader';
+import { parseGitHubApiUrl } from '@/lib/github/urlParser';
 import { DownloadStatus } from '@/types/DownloadStatus';
 import { GitHubReposContext } from '@/types/GitHubReposContext';
 import BrowserListItem from './wrapper/BrowserListItem';
@@ -14,16 +15,9 @@ interface FolderContentProps {
 
 export default function FolderContent({ item, setPathFunc, updateFunc: updateStatus }: FolderContentProps) {
   const handleDownload = async () => {
-    const { owner, repo } = parseGitHubUrl(item.url);
+    const { owner, repo } = parseGitHubApiUrl(item.url);
     DownloadFolder((status) => updateStatus(status), owner, repo, item.path);
   };
 
   return <BrowserListItem item={item} itemClickFunc={() => setPathFunc(item.path)} downloadFunc={handleDownload} />;
-}
-
-function parseGitHubUrl(url: string) {
-  const regex = /https:\/\/api\.github\.com\/repos\/([^/]+)\/([^/]+)\/contents\/([^?]+)/;
-  const match = url.match(regex);
-  if (!match) throw new Error('Invalid GitHub API URL format');
-  return { owner: match[1], repo: match[2], path: match[3] };
 }

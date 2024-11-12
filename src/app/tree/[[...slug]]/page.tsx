@@ -1,6 +1,8 @@
+import React from 'react';
 import { Metadata } from 'next';
 import { Session } from 'next-auth';
 import SessionButton from '@/components/common/fragment/SessionButton';
+import TreeSection from '@/components/tree/TreeSection';
 import { generateMetadataTemplate } from '@/lib/SEO';
 import { auth } from '@/lib/auth';
 import ListPageClient from './page.client';
@@ -22,10 +24,12 @@ export default async function ListPage({
   const session: Session | null = await auth();
   if (!session) {
     return (
-      <main className='p-4'>
-        <div>Need to login</div>
-        <SessionButton />
-      </main>
+      <Main>
+        <TreeSection>
+          <div>Need to login</div>
+          <SessionButton />
+        </TreeSection>
+      </Main>
     );
   }
 
@@ -33,10 +37,12 @@ export default async function ListPage({
 
   if (!accessToken) {
     return (
-      <main className='p-4'>
-        <div>Failed to get access token</div>
-        <SessionButton />
-      </main>
+      <Main>
+        <TreeSection>
+          <div>Failed to get access token</div>
+          <SessionButton />
+        </TreeSection>
+      </Main>
     );
   }
 
@@ -46,7 +52,7 @@ export default async function ListPage({
   const ref = (await searchParams)['ref'];
 
   return (
-    <main className='p-4'>
+    <Main>
       <ListPageClient
         defaultTree={{
           owner,
@@ -55,6 +61,10 @@ export default async function ListPage({
           ref: ref !== '' ? ref : undefined,
         }}
       />
-    </main>
+    </Main>
   );
+}
+
+function Main({ children }: { children: React.ReactNode }) {
+  return <main className='p-4'>{children}</main>;
 }

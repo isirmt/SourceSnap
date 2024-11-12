@@ -62,8 +62,8 @@ export default function UserRepoList({ octokit, onSelectRepo }: RepoListProps) {
   const loadMoreStarredRepos = () => setStarredPage((prevPage) => prevPage + 1);
 
   return (
-    <div className='w-[40rem] max-w-full'>
-      <h2 className='font-bold'>Your Repositories</h2>
+    <div className='w-full'>
+      <h2 className='my-1.5 px-2 font-bold'>Your Repositories</h2>
       <ul className='block w-full overflow-clip rounded-lg border-x border-slate-200'>
         {userRepos.map((repo) => (
           <li key={`user:${repo.id}`}>
@@ -76,7 +76,7 @@ export default function UserRepoList({ octokit, onSelectRepo }: RepoListProps) {
         ))}
       </ul>
       <BlueLoadButton onClick={loadMoreUserRepos} isLoading={loading} />
-      <h2 className='font-bold'>Your Starred Repositories</h2>
+      <h2 className='my-1.5 px-2 font-bold'>Your Starred Repositories</h2>
       <ul className='block w-full overflow-clip rounded-lg border-x border-slate-200'>
         {starredRepos.map((repo) => (
           <li key={`star:${repo.id}`}>
