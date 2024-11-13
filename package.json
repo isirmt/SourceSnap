@@ -20,6 +20,7 @@
     "jszip": "^3.10.1",
     "next": "15.0.2",
     "next-auth": "5.0.0-beta.25",
+    "nextjs-toploader": "^3.7.15",
     "react": "19.0.0-rc-02c0e824-20241028",
     "react-dom": "19.0.0-rc-02c0e824-20241028",
     "react-redux": "^9.1.2"
