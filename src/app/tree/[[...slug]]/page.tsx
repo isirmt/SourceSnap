@@ -1,10 +1,11 @@
 import React from 'react';
 import { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { Session } from 'next-auth';
 import SessionButton from '@/components/common/fragment/SessionButton';
 import TreeSection from '@/components/tree/TreeSection';
 import { generateMetadataTemplate } from '@/lib/SEO';
-import { auth } from '@/lib/auth';
+import { auth, signIn } from '@/lib/auth';
 import ListPageClient from './page.client';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug?: string[] }> }): Promise<Metadata> {
@@ -23,6 +24,9 @@ export default async function ListPage({
 }) {
   const session: Session | null = await auth();
   if (!session) {
+    await signIn(undefined, {
+      redirectTo: new URL((await headers()).get('x-url')!).toString(),
+    });
     return (
       <Main>
         <TreeSection>
